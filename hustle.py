@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 from sys import *
-import sys
 import std.Interpreter as stdlib
 from colorama import Fore
-import os
 
 # MIT License 
 # Copyright (c) 2022 Akshaj Trivedi and Hustle Contributers
