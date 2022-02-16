@@ -38,8 +38,8 @@
   (defconst hustle-keywords
     '("if" "else" "while" "then" "include" "end" "var" 
       "and" "or" "tsleep" "not" "elif" "func" "return"
-      "continue" "break" "step" "sys" "sys" "int" "str"
-      "float" "randint" "not" "for" "to")))
+      "continue" "break" "step" "sys" "int" "str"
+      "float" "randint" "not" "for" "to" "printh")))
 
 (defconst hustle-highlights
   `((,(regexp-opt hustle-keywords 'symbols) . font-lock-keyword-face)))
@@ -49,7 +49,7 @@
   "Major Mode for editing Hustle Souce Code."
   :syntax-table hustle-mode-syntax-table
   (setq font-lock-defaults '(hustle-highlights))
-  (setq-local comment-start "# "))
+  (setq-local comment-start "// "))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.hsle\\'" . hustle-mode))

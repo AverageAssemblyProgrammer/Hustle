@@ -176,7 +176,7 @@ class Lexer:
     while self.current_char != None:
       if self.current_char in ' \t':
         self.advance()
-      elif self.current_char == '#':
+      elif self.current_char == '/':
         self.skip_comment()
       elif self.current_char in '\n':
         tokens.append(Token(TT_NEWLINE, pos_start=self.pos))
@@ -349,8 +349,10 @@ class Lexer:
 
   def skip_comment(self):
     self.advance()
-    while self.current_char != '\n':
+    if self.current_char == '/':
       self.advance()
+      while self.current_char != '\n':
+        self.advance()
 
 
 class NumberNode:
@@ -1794,7 +1796,7 @@ class Number(Value):
     if isinstance(other, Number):
       return Number(int(self.value == other.value)).set_context(self.context), None
     else:
-      print("btw comparing strings or floats is not implemented yet")
+      print("btw comparing floats is not implemented yet")
       return None, Value.illegal_operation(self, other)
 
   def get_comparison_ne(self, other):
@@ -1803,7 +1805,7 @@ class Number(Value):
     elif isinstance(other, TT_IDENTIFIER):
       return Number(int(self.value != other.value)).set_context(self.context), None
     else:
-      print("btw comparing strings or floats is not implemented yet")
+      print("btw comparing floats is not implemented yet")
       return None, Value.illegal_operation(self, other)
 
   def get_comparison_lt(self, other):
@@ -1886,7 +1888,7 @@ class String(Value):
     if isinstance(other, String):
       return String(self.value == other.value).set_context(self.context), None
     elif isinstance(other, TT_IDENTIFIER):
-      return Number(int(self.value == other.value)).set_context(self.context), None
+      return String(self.value == other.value).set_context(self.context), None
     else:
       return None, Value.illegal_operation(self, other)
 
@@ -2093,13 +2095,12 @@ class BuiltInFunction(BaseFunction):
   execute_input.arg_names = []
 
   def execute_input_int(self, exec_ctx):
-    while True:
-      text = input()
-      try:
-        number = int(text)
-        break
-      except ValueError:
-        print(f"'{text}' must be an integer. Try again!")
+    text = input()
+    try:
+      number = int(text)
+    except ValueError as e:
+      print(e)
+      exit(1)
     return RTResult().success(Number(number))
   execute_input_int.arg_names = []
 
