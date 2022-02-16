@@ -26,4 +26,4 @@ end
 func randint(min, max)
      var reted = randInt(min, max) return
      return reted
-end 
+end
