@@ -7,6 +7,7 @@ import sys
 import time 
 import random
 
+# I do not why anyone will use hustle, as it is a interpreted langugae made in a interpreted language
 # TODO: make strings comparable, cuz comparing strings is hard
 
 DIGITS = '0123456789'
@@ -177,7 +178,7 @@ class Lexer:
         self.advance()
       elif self.current_char == '#':
         self.skip_comment()
-      elif self.current_char in ';\n':
+      elif self.current_char in '\n':
         tokens.append(Token(TT_NEWLINE, pos_start=self.pos))
         self.advance()
       elif self.current_char in DIGITS:
@@ -348,7 +349,6 @@ class Lexer:
 
   def skip_comment(self):
     self.advance()
-
     while self.current_char != '\n':
       self.advance()
 
@@ -1794,6 +1794,7 @@ class Number(Value):
     if isinstance(other, Number):
       return Number(int(self.value == other.value)).set_context(self.context), None
     else:
+      print("btw comparing strings or floats is not implemented yet")
       return None, Value.illegal_operation(self, other)
 
   def get_comparison_ne(self, other):
@@ -1884,6 +1885,8 @@ class String(Value):
   def get_comparison_eq(self, other):
     if isinstance(other, String):
       return String(self.value == other.value).set_context(self.context), None
+    elif isinstance(other, TT_IDENTIFIER):
+      return Number(int(self.value == other.value)).set_context(self.context), None
     else:
       return None, Value.illegal_operation(self, other)
 
@@ -2453,9 +2456,7 @@ class Interpreter:
   def visit_IncludeNode(self, node, context):
     res = RTResult()
     modules = {
-      "1" : "std/BuiltInModules/test_modules/checks.hsle",
-      "2" : "std/BuiltInModules/solutions/fizzbuzz.hsle",
-      "@" : "std/BuiltInModules/functions.hsle"
+      "@" : "stdlib.hsle"
     }
     include_var = res.register(self.visit(node.include_name, context))
     if res.should_return(): return res    

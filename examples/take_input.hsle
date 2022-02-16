@@ -1,5 +1,26 @@
 # I am working on making the input function also take in and print out the input its given.
+include("all") return 
 
-var name = input()
+var he = int("50") 
+var re = int(input())
 
-printh("Your name is " + name)
+printh(str(he))
+
+#var use_main = False
+var use_main = True
+
+func main()
+    if re == he then 
+        printh("ok")    
+    end 
+end 
+
+func ok()
+    if use_main == True then 
+        main()
+    else 
+        return 0
+    end 
+end 
+
+ok()

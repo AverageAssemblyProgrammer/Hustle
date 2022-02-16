@@ -1,9 +1,11 @@
+include("all") return
+
 func main()
-    system("ls -la") return 
-    sleep(1) return 
+    sys("ls -la") 
+    tsleep(1) 
     printh("sus")  
-    sleep(1) return 
+    tsleep(1) 
     # something is sus amog us
-    system("xdg-open https://www.youtube.com/watch?v=grd-K33tOSM") return 
+    sys("xdg-open https://www.youtube.com/watch?v=grd-K33tOSM") 
 end 
 main()

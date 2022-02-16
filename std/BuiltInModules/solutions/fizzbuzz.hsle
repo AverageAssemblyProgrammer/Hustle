@@ -10,9 +10,8 @@ func fizzbuzz()
     printh("fizzbuzz")
 end  
 
-var number_count = input_int()
 func main(number_count)  
-    for i = 0 to number_count step(1) then 
+    for i = 1 to number_count step(1) then 
         if (i % 3) == 0 then 
             fizz() 
         elif (i % 5) == 0 then 
@@ -24,4 +23,4 @@ func main(number_count)
     end 
 end
 end
-main(number_count)
+main(10)

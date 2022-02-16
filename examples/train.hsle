@@ -63,151 +63,151 @@ var train51 = "                                                  ###############
 func move_train()
     while DT == 60 then 
         printh(train)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train2)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train3)
-        sleep(1) return 
+        tsleep(1)  
         clear() 
         printh(train4)
-        sleep(1) return
+        tsleep(1) 
         clear() 
         printh(train5)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train6)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train7)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train8)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train9)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train10)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train11)
-        sleep(1) return
+        tsleep(1) 
         clear() 
         printh(train12)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train13)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train14)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train15)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train16)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train17)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train19)
-        sleep(1) return
+        tsleep(1) 
         clear() 
         printh(train20)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train21)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train22)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train23)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train24)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train25)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train26)
-        sleep(1) return
+        tsleep(1) 
         clear() 
         printh(train27)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train28)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train29)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train30)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train31)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train32)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train33)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train34)
-        sleep(1) return
+        tsleep(1) 
         clear() 
         printh(train35)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train36)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train37)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train38)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train39)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train40)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train41)
-        sleep(1) return
+        tsleep(1) 
         clear() 
         printh(train42)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train43)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train44)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train45)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train46)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train47)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train49)
-        sleep(1) return
+        tsleep(1) 
         clear() 
         printh(train50)
-        sleep(1) return 
+        tsleep(1)  
         clear()
         printh(train51)
-        sleep(1) return 
+        tsleep(1)  
         clear()
     end
 end   
