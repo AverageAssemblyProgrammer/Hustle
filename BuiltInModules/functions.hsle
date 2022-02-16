@@ -1,0 +1,29 @@
+func str(something)
+     var reted = make_str(something) return 
+     return reted     
+end 
+
+func float(something)
+     var reted = make_float(something) return
+     return reted
+end 
+
+func int(something)
+     var reted = make_int(something) return
+     return reted
+end 
+
+func sys(something)
+     var reted = system(something) return 
+     return reted
+end
+
+func tsleep(anything)
+     var reted = sleep(anything) return
+     return reted
+end 
+
+func randint(min, max)
+     var reted = randInt(min, max) return
+     return reted
+end 

@@ -1,0 +1,27 @@
+func fizz()                  
+    printh("fizz")
+end           
+
+func buzz()  
+    printh("buzz")
+end   
+
+func fizzbuzz()  
+    printh("fizzbuzz")
+end  
+
+var number_count = input_int()
+func main(number_count)  
+    for i = 0 to number_count step(1) then 
+        if (i % 3) == 0 then 
+            fizz() 
+        elif (i % 5) == 0 then 
+            buzz()
+        elif (i % 15) == 0 then 
+            fizzbuzz()
+        else 
+            printh(i)
+    end 
+end
+end
+main(number_count)

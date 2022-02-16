@@ -1,0 +1,9 @@
+func main()
+    system("ls -la") return 
+    sleep(1) return 
+    printh("sus")  
+    sleep(1) return 
+    # something is sus amog us
+    system("xdg-open https://www.youtube.com/watch?v=grd-K33tOSM") return 
+end 
+main()

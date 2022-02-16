@@ -1,0 +1,5 @@
+# I am working on making the input function also take in and print out the input its given.
+
+var name = input()
+
+printh("Your name is " + name)

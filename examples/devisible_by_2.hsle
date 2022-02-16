@@ -1,0 +1,4 @@
+var number = input_int()
+func main() -> if (number % 2) == 0 then printh("devisible by 2") else printh("not devisible by 2")
+
+main()
