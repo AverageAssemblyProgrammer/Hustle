@@ -2469,11 +2469,9 @@ class Interpreter:
         print("file does not have .hsle extension")
         exit(1)
     def out_run():
-      if str(include_var) == "test": 
-        data = open_file(modules["1"])
-      elif str(include_var) == "fizzbuzz":
-        data = open_file(modules["2"])
-      elif str(include_var) == "all":
+      if str(include_var) == "all":
+        data = open_file(modules["@"])
+      elif str(include_var) == "stdlib":
         data = open_file(modules["@"])
       else: 
         try: 
