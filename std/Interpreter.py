@@ -136,7 +136,7 @@ KEYWORDS = [
   'continue',
   'break'
 ]
- 
+
 class Token:
   def __init__(self, type_, value=None, pos_start=None, pos_end=None):
     self.type = type_
@@ -265,7 +265,6 @@ class Lexer:
       'n': '\n',
       't': '\t'
     }
-
     while self.current_char != None and (self.current_char != '"' or escape_character):
       if escape_character:
         string += escape_characters.get(self.current_char, self.current_char)

@@ -1,0 +1,4 @@
+include("stdlib") return 
+
+var list = [213, 124, 5, 123, 123, 51, 2, 583, 123, 90, 6, 0, 1, 4, 2, 8, 1]
+get_int(list, 1)
