@@ -24,18 +24,18 @@ def check_subcommand(command):
 		print("Unkown Subcommand")
 		print("Subcommands are :-")
 		print("    run    <filepath>" + " - run will interprete the program.")
-		print("    help" + " - help will print this help screen")
+		print("    help" + "              - help will print this help screen")
 		print(Fore.RED + "exited abnormally with code 1")
 
 def usage(white_help=True):
 	if white_help:
 		print(Fore.WHITE + "Subcommands are :-")
 		print(Fore.WHITE + "    run    <filepath>" + " - run will interprete the program.")
-		print(Fore.WHITE + "    help" + " - help will print this help screen")
+		print(Fore.WHITE + "    help" + "              - help will print this help screen")
 	else: 
 		print("Subcommands are :-")
 		print("    run    <filepath>" + " - run will interprete the program.")
-		print("    help" + " - help will print this help screen")
+		print("    help" + "              - help will print this help screen")
 
 def throw_error(error, code):
 	print(Fore.RED + "ERROR: " + error)

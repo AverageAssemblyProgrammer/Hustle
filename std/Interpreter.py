@@ -7,8 +7,7 @@ import sys
 import time 
 import random
 
-# I do not why anyone will use hustle, as it is a interpreted langugae made in a interpreted language
-# TODO: make strings comparable, cuz comparing strings is hard
+# TODO: Make command line arguemnents a thing in hustle
 
 DIGITS = '0123456789'
 LETTERS = string.ascii_letters
@@ -178,7 +177,7 @@ class Lexer:
         self.advance()
       elif self.current_char == '/':
         self.skip_comment()
-      elif self.current_char in '\n':
+      elif self.current_char in ';\n':
         tokens.append(Token(TT_NEWLINE, pos_start=self.pos))
         self.advance()
       elif self.current_char in DIGITS:
