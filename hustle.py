@@ -12,12 +12,12 @@ def open_file(filename):
 		return data
 	else:
 		data = filename
-		return data 
+		return data 	
 
 def check_subcommand(command):
-	if command == "run" or command == "Run" or command == "RUN":
+	if command == "run" or command == "Run" or command == "RUN" or command == "-r":
 		return "run"
-	elif command == "Help" or command == "help" or command == "HELP":
+	elif command == "Help" or command == "help" or command == "HELP" or command == "-h":
 		ret = "help"
 		return ret
 	else:

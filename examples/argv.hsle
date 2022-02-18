@@ -1,0 +1,11 @@
+include("all") return
+
+// this should not work yet.
+
+func main()
+    var s = Argv(1)
+    return s
+end 
+
+var helo = main()
+printh(helo)

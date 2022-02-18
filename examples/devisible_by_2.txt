@@ -2,7 +2,9 @@
 :b stdin 0
 
 :i returncode 0
-:b stdout 17
+:b stdout 19
+
+
 devisible by 2
 
 

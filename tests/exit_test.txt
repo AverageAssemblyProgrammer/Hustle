@@ -1,0 +1,10 @@
+:i argc 0
+:b stdin 0
+
+:i returncode 69
+:b stdout 2
+
+
+
+:b stderr 0
+

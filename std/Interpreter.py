@@ -1,3 +1,4 @@
+from re import A
 from arrow_strings.strings_with_arrows import *
 import string
 import os
@@ -116,6 +117,7 @@ KEYWORDS = [
   'randInt',
   'sleep',
   'make_int',
+  'Exit',
   'make_str',
   'make_float',
   'not',
@@ -125,6 +127,7 @@ KEYWORDS = [
   'else',
   'for',
   'include',
+  'argv',
   'to',
   'step',
   'while',
@@ -434,6 +437,24 @@ class IncludeNode:
 
     self.pos_start = self.include_name.pos_start
     self.pos_end = self.include_name.pos_end
+
+class ExitNode:
+  def __init__(self, exit_code, body_node, should_return_null):
+    self.exit_code = exit_code
+    self.body_node = body_node
+    self.should_return_null = should_return_null
+
+    self.pos_start = self.exit_code.pos_start
+    self.pos_end = self.exit_code.pos_end 
+
+class ArgvNode:
+  def __init__(self, argv_count, body_node, should_return_null):
+    self.argv_count = argv_count
+    self.body_node = body_node
+    self.should_return_null = should_return_null
+
+    self.pos_start = self.argv_count.pos_start
+    self.pos_end = self.argv_count.pos_end 
 
 class makeIntNode:
   def __init__(self, make_int_value, body_node, should_return_null):
@@ -866,6 +887,16 @@ class Parser:
       if res.error: return res
       return res.success(include_expr)
 
+    elif tok.matches(TT_KEYWORD, 'Exit'):
+      Exit_expr = res.register(self.Exit_expr())
+      if res.error: return res
+      return res.success(Exit_expr)
+
+    elif tok.matches(TT_KEYWORD, 'argv'):
+      argv_expr = res.register(self.argv_expr())
+      if res.error: return res
+      return res.success(argv_expr)
+
     elif tok.matches(TT_KEYWORD, 'make_int'):
       make_int_expr = res.register(self.make_int_expr())
       if res.error: return res
@@ -1143,6 +1174,88 @@ class Parser:
 
     return res.success(SystemNode(system_command_name_tok, body, False))   
 
+  def argv_expr(self):
+    res = ParseResult()
+
+    if not self.current_tok.matches(TT_KEYWORD, 'argv'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'argv'"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_LSQUARE:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '['"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_INT:
+      if self.current_tok.type != TT_IDENTIFIER:
+        return res.failure(InvalidSyntaxError(
+          self.current_tok.pos_start, self.current_tok.pos_end,
+          f"Expected 'integer or identifier'"
+        ))
+
+    argv_count_tok = res.register(self.expr())
+    if res.error: return res
+    res.register_advancement()
+    self.advance()
+
+    # if self.current_tok.matches != TT_RSQUARE:
+    #   return res.failure(InvalidSyntaxError(
+    #     self.current_tok.pos_start, self.current_tok.pos_end,
+    #     f"Expected ']'"
+    #   ))
+
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(ArgvNode(argv_count_tok, body, False))
+
+  def Exit_expr(self):
+    res = ParseResult()
+
+    if not self.current_tok.matches(TT_KEYWORD, 'Exit'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'Exit'"
+      ))
+
+    res.register_advancement()
+    self.advance()  
+
+    if self.current_tok.type != TT_LPAREN:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '('"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_INT:
+      if self.current_tok.type != TT_STRING:
+        if self.current_tok.type != TT_IDENTIFIER:
+          return res.failure(InvalidSyntaxError(
+            self.current_tok.pos_start, self.current_tok.pos_end,
+            f"Expected 'int or string or identifier'"
+          ))
+
+    exit_code_tok = res.register(self.expr())
+    if res.error: return res
+    res.register_advancement()
+    self.advance()  
+
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(ExitNode(exit_code_tok, body, False))
 
   def include_expr(self):
     res = ParseResult()
@@ -2451,6 +2564,51 @@ class Interpreter:
       return res.success(Number.null if should_return_null else expr_value)
 
     return res.success(Number.null)
+
+  def visit_ArgvNode(self, node, context):
+    res = RTResult()
+    argvs = []
+
+    #TODO: complete this feature
+
+    argvs_var = res.register(self.visit(node.argv_count, context))
+    if res.should_return(): return res    
+    # ./hustle argv1 argv2 argv3 argv4 argv5
+    # ./hustle  run   file  
+
+    def main():
+      assert False, "argv is not implemented yet"
+
+    main()
+    return res.success(
+      Number.null if node.should_return_null else
+      List(argvs).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )
+
+  def visit_ExitNode(self, node, context):
+    res = RTResult()
+    exits = []
+
+    exit_code = res.register(self.visit(node.exit_code, context))
+    if res.should_return(): return res
+
+    def main():
+      try:
+        try:
+          if isinstance(int(str(exit_code)), int): 
+            exit(int(str(exit_code)))
+          else: 
+            exit()
+        except Exception as e: 
+          if isinstance(str(exit_code), str): 
+            exit(str(exit_code))
+      except Exception as e: 
+        print("Runtime Error: " + str(e))
+    main()
+    return res.success(
+      Number.null if node.should_return_null else
+      List(exits).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )    
 
   def visit_IncludeNode(self, node, context):
     res = RTResult()

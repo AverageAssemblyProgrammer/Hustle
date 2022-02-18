@@ -1,0 +1,3 @@
+include("all") return 
+var exit_code = 69
+exit(exit_code) 

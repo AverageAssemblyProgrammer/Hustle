@@ -49,3 +49,11 @@ func get_int(list, num)
 	end 
      end
 end 
+
+func Argv(count)
+    argv[count] return 
+end 
+
+func exit(code)
+     Exit(code) return 
+end 
