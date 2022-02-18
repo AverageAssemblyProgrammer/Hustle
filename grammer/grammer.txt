@@ -67,7 +67,22 @@ func-def    : KEYWORD:func IDENTIFIER?
 include : KEYWORD:include LPAREN "INCLUDE_FILE_NAME" RPAREN KEYWORD-RETURN
 
 tsleep : KEYWORD:tsleep LPAREN SLEEP_TIME RPAREN
+tsleep : depend :- stdlib 
 
 sys : KEYWORD:sys LPAREN "COMMAND" RPAREN
+sys : depend :- stdlib 
 
 randint : KEYWORD:randint LPAREN INT COMMA INT RPAREN
+randint : depend :- stdlib 
+
+exit : KEYWORD:exit LPAREN (INT or STRING or IDENTIFIER) RPAREN
+exit : depend :- stdlib 
+
+str : KEYWORD:str LPAREN (INT or IDENTIFIER or FLOAT) RPAREN
+str : depend :- stdlib 
+
+int : KEYWORD:int LPAREN (STRING or IDENTIFIER) RPAREN
+int : depend :- stdlib 
+
+float : KEYWORD:float LPAREN (IDENTIFIER or STRING) RPAREN
+float : depend :- stdlib

@@ -28,28 +28,6 @@ func randint(min, max)
      return reted
 end
 
-func get_int(list, num)
-     var n = num
-     var l = list
-     if len(list) <= 1 then
-     	printh("list should have more then 1 element")
-     else
-	// printh("1st test successfull") 
-	for i = 0 to len(l) then
-	    var num1 = pop(l, 0)
-	    // var num2 = pop(l, i)
-	    if num1 == num then
-	       printh(str(num) + "Found at location" + str(i))
-	    else
-		printh(str(num)  + "Not Found at location " + str(i))	
-	    end
-	    if len(l) > 0 then
-	       printh(l)	      
-	    end 
-	end 
-     end
-end 
-
 func Argv(count)
     argv[count] return 
 end 
