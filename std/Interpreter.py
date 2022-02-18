@@ -1326,10 +1326,11 @@ class Parser:
     if self.current_tok.type != TT_INT:
       if self.current_tok.type != TT_IDENTIFIER:
         if self.current_tok.type != TT_FLOAT:
-          return res.failure(InvalidSyntaxError(
-            self.current_tok.pos_start, self.current_tok.pos_end,
-            f"Expected 'int' or 'float' or 'identifier'"
-          ))      
+          if self.current_tok.type != TT_KEYWORD:
+            return res.failure(InvalidSyntaxError(
+              self.current_tok.pos_start, self.current_tok.pos_end,
+              f"Expected 'int' or 'float' or 'identifier'"
+            ))      
 
     make_str_value = res.register(self.expr())
     if res.error: return res  
@@ -2668,8 +2669,12 @@ class Interpreter:
         string = str(string_value)
         strs.append(string)
       except:  
-        print(": Error in Parsing the integer to string :")
-        sys.exit("check if the litteral is in base 10")
+        try:
+          string = String(string_value)
+          strs.append(string)
+        except: 
+          print(": Error in Parsing the integer to string :")
+          sys.exit("check if the litteral is in base 10")
     
     ssrun()
     return res.success(
@@ -2691,7 +2696,7 @@ class Interpreter:
       except: 
         try: 
           num = int(str(integer_value))
-          numbs.append(num)     
+          numbs.append(num) 
         except:
           print(": Parsing the string into num failed :")
           print("is there a alphebet in the literal passed in? ")
@@ -2705,7 +2710,7 @@ class Interpreter:
 
   def visit_makeFloatNode(self, node, context):
     res = RTResult()
-    floats = []   
+    floats = []
 
     float_value = res.register(self.visit(node.make_float_value, context))
     if res.should_return(): return res

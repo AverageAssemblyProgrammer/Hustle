@@ -1,0 +1,79 @@
+include("all") return
+//sys("./hustle.py run hustle.hsle")
+
+// because we do not have args right now, so we are going to
+// get filepath with input instead of argv 
+
+func usage()
+     printh("Subcommands are:- ")
+     printh("    run    <filepath>    - run the file")
+     printh("    help                 - will print this help screen without the non zero exit")      
+end 
+
+func throw_error(error, error_code)
+     printh("ERROR:- " + error)
+     usage()
+     exit(error_code)
+end 
+
+func check_subcommand(c)
+     if c == "run " then
+     	 //run(filepath)
+	 var res = "run"
+	 return res
+     elif c == "run" then
+     	 var res = "run"
+	 return res
+     elif c == "r " then
+     	 var res = "run"
+	 return res
+     elif c == "r" then
+     	 var res = "run"
+	 return res
+     elif c == "-r" then
+     	 var res = "run"
+	 return res
+     elif c == "-r " then
+     	 var res = "run"
+	 return res
+     elif c == "help" then
+     	 var res = "run"
+	 return res
+     elif c == "help " then
+     	 var res = "run"
+	 return res
+     elif c == "h" then
+     	 var res = "run"
+	 return res
+     elif c == "-h" then
+     	 var res = "run"
+	 return res
+     elif c == "h " then
+     	 var res = "run"
+	 return res
+     elif c == "-h " then
+     	 var res = "run"
+	 return res
+     else
+	//printh("unknown subcommand")
+	throw_error("Unknown Subcommand", 1)
+	usage()
+	exit(1)
+     end 
+end 
+
+func out_run()
+     printh("give subcommand:- ")
+     var subcommand = input()
+     var struct = check_subcommand(subcommand)
+     if struct == "run" then
+     	printh("give filepath")
+     	var filepath = input()
+	run(filepath)
+     elif struct == "help" then
+         usage()
+	 exit(0)
+     end 
+end
+
+out_run()
