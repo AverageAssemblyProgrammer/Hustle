@@ -1,0 +1,17 @@
+:i argc 0
+:b stdin 0
+
+:i returncode 0
+:b stdout 74
+
+
+what is your name?
+what is your age?
+
+your name is joe
+your age is 25
+
+
+
+:b stderr 0
+

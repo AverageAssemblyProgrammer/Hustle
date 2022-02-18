@@ -1,4 +1,3 @@
-from re import A
 from arrow_strings.strings_with_arrows import *
 import string
 import os
@@ -116,9 +115,9 @@ KEYWORDS = [
   'or',
   'randInt',
   'sleep',
-  'make_int',
   'Exit',
   'make_str',
+  'make_int',
   'make_float',
   'not',
   'system',
@@ -438,6 +437,33 @@ class IncludeNode:
     self.pos_start = self.include_name.pos_start
     self.pos_end = self.include_name.pos_end
 
+class MakeIntNode:
+  def __init__(self, int_tok, body_node, should_return_null):
+    self.int_tok = int_tok
+    self.body_node = body_node
+    self.should_return_null = should_return_null
+
+    self.pos_start = self.int_tok.pos_start
+    self.pos_end = self.int_tok.pos_end
+
+class MakeFloatNode:
+  def __init__(self, float_tok, body_node, should_return_null):
+    self.float_tok = float_tok
+    self.body_node = body_node
+    self.should_return_null = should_return_null
+
+    self.pos_start = self.float_tok.pos_start
+    self.pos_end = self.float_tok.pos_end
+
+class MakeStrNode:
+  def __init__(self, string_tok, body_node, should_return_null):
+    self.string_tok = string_tok
+    self.body_node = body_node
+    self.should_return_null = should_return_null
+
+    self.pos_start = self.string_tok.pos_start
+    self.pos_end = self.string_tok.pos_end
+
 class ExitNode:
   def __init__(self, exit_code, body_node, should_return_null):
     self.exit_code = exit_code
@@ -456,32 +482,6 @@ class ArgvNode:
     self.pos_start = self.argv_count.pos_start
     self.pos_end = self.argv_count.pos_end 
 
-class makeIntNode:
-  def __init__(self, make_int_value, body_node, should_return_null):
-    self.make_int_value = make_int_value
-    self.body_node = body_node
-    self.should_return_null = should_return_null
-
-    self.pos_start = self.make_int_value.pos_start
-    self.pos_end   = self.make_int_value.pos_end
-
-class makeFloatNode:
-  def __init__(self, make_float_value, body_node, should_return_null):
-    self.make_float_value   = make_float_value 
-    self.body_node          = body_node
-    self.should_return_null = should_return_null
-
-    self.pos_start          = self.make_float_value.pos_start
-    self.pos_end            = self.make_float_value.pos_end 
-
-class makeStrNode:
-  def __init__(self, make_str_value, body_node, should_return_null):
-    self.make_str_value     = make_str_value 
-    self.body_node          = body_node 
-    self.should_return_null = should_return_null 
-
-    self.pos_start          = self.make_str_value.pos_start
-    self.pos_end            = self.make_str_value.pos_end
 
 class randIntNode:
   def __init__(self, first_rand_name, second_rand_name, body_node, should_return_null):
@@ -891,11 +891,11 @@ class Parser:
       Exit_expr = res.register(self.Exit_expr())
       if res.error: return res
       return res.success(Exit_expr)
-
-    elif tok.matches(TT_KEYWORD, 'argv'):
-      argv_expr = res.register(self.argv_expr())
+    
+    elif tok.matches(TT_KEYWORD, 'make_str'):
+      make_str_expr = res.register(self.make_str_expr())
       if res.error: return res
-      return res.success(argv_expr)
+      return res.success(make_str_expr)    
 
     elif tok.matches(TT_KEYWORD, 'make_int'):
       make_int_expr = res.register(self.make_int_expr())
@@ -907,10 +907,10 @@ class Parser:
       if res.error: return res
       return res.success(make_float_expr)
 
-    elif tok.matches(TT_KEYWORD, 'make_str'):
-      make_str_expr = res.register(self.make_str_expr())
+    elif tok.matches(TT_KEYWORD, 'argv'):
+      argv_expr = res.register(self.argv_expr())
       if res.error: return res
-      return res.success(make_str_expr)
+      return res.success(argv_expr)
 
     elif tok.matches(TT_KEYWORD, 'randInt'):
       randInt_expr = res.register(self.randInt_expr())
@@ -1218,6 +1218,123 @@ class Parser:
 
     return res.success(ArgvNode(argv_count_tok, body, False))
 
+  def make_float_expr(self):
+    res = ParseResult()
+    if not self.current_tok.matches(TT_KEYWORD, 'make_float'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'make_float'"
+      ))
+
+    res.register_advancement()
+    self.advance()  
+
+    if self.current_tok.type != TT_LPAREN:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '('"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.matches != TT_INT:
+      if self.current_tok.matches != TT_STRING:
+        if self.current_tok.type != TT_IDENTIFIER:
+          return res.failure(InvalidSyntaxError(
+            self.current_tok.pos_start, self.current_tok.pos_end,
+            f"Expected 'int or string or identifier'"
+          ))
+
+    float_tok = res.register(self.expr())
+    if res.error: return res
+    res.register_advancement()
+    self.advance()  
+
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(MakeFloatNode(float_tok, body, False))
+
+
+  def make_int_expr(self):
+    res = ParseResult()
+    if not self.current_tok.matches(TT_KEYWORD, 'make_int'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'make_int'"
+      ))
+
+    res.register_advancement()
+    self.advance()  
+
+    if self.current_tok.type != TT_LPAREN:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '('"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.matches != TT_FLOAT:
+      if self.current_tok.matches != TT_STRING:
+        if self.current_tok.type != TT_IDENTIFIER:
+          return res.failure(InvalidSyntaxError(
+            self.current_tok.pos_start, self.current_tok.pos_end,
+            f"Expected 'int or float or identifier'"
+          ))
+
+    int_tok = res.register(self.expr())
+    if res.error: return res
+    res.register_advancement()
+    self.advance()  
+
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(MakeIntNode(int_tok, body, False))
+
+  def make_str_expr(self):
+    res = ParseResult()
+
+    if not self.current_tok.matches(TT_KEYWORD, 'make_str'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'make_str'"
+      ))
+
+    res.register_advancement()
+    self.advance()  
+
+    if self.current_tok.type != TT_LPAREN:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '('"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_INT:
+      if self.current_tok.matches != TT_FLOAT:
+        if self.current_tok.type != TT_IDENTIFIER:
+          return res.failure(InvalidSyntaxError(
+            self.current_tok.pos_start, self.current_tok.pos_end,
+            f"Expected 'int or float or identifier'"
+          ))
+
+    string_tok = res.register(self.expr())
+    if res.error: return res
+    res.register_advancement()
+    self.advance()  
+
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(MakeStrNode(string_tok, body, False))
+
+
   def Exit_expr(self):
     res = ParseResult()
 
@@ -1301,124 +1418,6 @@ class Parser:
     if res.error: return res
 
     return res.success(IncludeNode(include_name_tok, body, False))
-  
-  def make_str_expr(self):
-    res = ParseResult()
-
-    if not self.current_tok.matches(TT_KEYWORD, 'make_str'):
-      return res.failure(InvalidSyntaxError(
-        self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected 'make_str'"
-      ))
-
-    res.register_advancement()
-    self.advance()  
-
-    if self.current_tok.type != TT_LPAREN:
-      return res.failure(InvalidSyntaxError(
-        self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected '('"
-      ))
-
-    res.register_advancement()
-    self.advance()
-
-    if self.current_tok.type != TT_INT:
-      if self.current_tok.type != TT_IDENTIFIER:
-        if self.current_tok.type != TT_FLOAT:
-          if self.current_tok.type != TT_KEYWORD:
-            return res.failure(InvalidSyntaxError(
-              self.current_tok.pos_start, self.current_tok.pos_end,
-              f"Expected 'int' or 'float' or 'identifier'"
-            ))      
-
-    make_str_value = res.register(self.expr())
-    if res.error: return res  
-    res.register_advancement()
-    self.advance() 
-
-    body = res.register(self.statement())
-    if res.error: return res
-
-    return res.success(makeStrNode(make_str_value, body, False))
-    
-  def make_float_expr(self):
-    res = ParseResult()
-
-    if not self.current_tok.matches(TT_KEYWORD, 'make_float'):
-      return res.failure(InvalidSyntaxError(
-        self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected 'make_float'"
-      ))
-
-    res.register_advancement()
-    self.advance()  
-
-    if self.current_tok.type != TT_LPAREN:
-      return res.failure(InvalidSyntaxError(
-        self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected '('"
-      ))
-
-    res.register_advancement()
-    self.advance()
-
-    if self.current_tok.type != TT_IDENTIFIER:
-      if self.current_tok.type != TT_STRING:
-        return res.failure(InvalidSyntaxError(
-          self.current_tok.pos_start, self.current_tok.pos_end,
-          f"Expected 'string' or 'identifier'"
-        ))      
-
-    make_float_value = res.register(self.expr())
-    if res.error: return res  
-    res.register_advancement()
-    self.advance() 
-
-    body = res.register(self.statement())
-    if res.error: return res
-
-    return res.success(makeFloatNode(make_float_value, body, False))
-
-
-  def make_int_expr(self):
-    res = ParseResult()
-
-    if not self.current_tok.matches(TT_KEYWORD, 'make_int'):
-      return res.failure(InvalidSyntaxError(
-        self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected 'make_int'"
-      ))
-
-    res.register_advancement()
-    self.advance()  
-
-    if self.current_tok.type != TT_LPAREN:
-      return res.failure(InvalidSyntaxError(
-        self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected '('"
-      ))
-
-    res.register_advancement()
-    self.advance()
-
-    if self.current_tok.type != TT_IDENTIFIER:
-      if self.current_tok.type != TT_STRING:
-        return res.failure(InvalidSyntaxError(
-          self.current_tok.pos_start, self.current_tok.pos_end,
-          f"Expected 'string' or 'identifier'"
-        ))      
-
-    make_int_value = res.register(self.expr())
-    if res.error: return res  
-    res.register_advancement()
-    self.advance() 
-
-    body = res.register(self.statement())
-    if res.error: return res
-
-    return res.success(makeIntNode(make_int_value, body, False))
-
 
   def randInt_expr(self): 
     res = ParseResult()
@@ -1908,7 +1907,6 @@ class Number(Value):
     if isinstance(other, Number):
       return Number(int(self.value == other.value)).set_context(self.context), None
     else:
-      print("btw comparing floats is not implemented yet")
       return None, Value.illegal_operation(self, other)
 
   def get_comparison_ne(self, other):
@@ -2450,7 +2448,7 @@ class Interpreter:
   def visit_StringNode(self, node, context):
     return RTResult().success(
       String(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
-    )
+  )
 
   def visit_ListNode(self, node, context):
     res = RTResult()
@@ -2611,6 +2609,42 @@ class Interpreter:
       List(exits).set_context(context).set_pos(node.pos_start, node.pos_end)
     )    
 
+  def visit_MakeFloatNode(self, node, context):
+    res = RTResult()
+    float_name = res.register(self.visit(node.float_tok, context))
+    if res.should_return(): return res
+
+    flootes = float(str(float_name))
+
+    return res.success(
+      Number.null if node.should_return_null else
+      Number(flootes).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )    
+
+  def visit_MakeIntNode(self, node, context):
+    res = RTResult()
+    int_name = res.register(self.visit(node.int_tok, context))
+    if res.should_return(): return res
+
+    ant = int(str(int_name))
+
+    return res.success(
+      Number.null if node.should_return_null else
+      Number(ant).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )    
+
+  def visit_MakeStrNode(self, node, context):
+    res = RTResult()
+    str_name = res.register(self.visit(node.string_tok, context))
+    if res.should_return(): return res
+
+    strang = str(str_name)
+
+    return res.success(
+      Number.null if node.should_return_null else
+      String(strang).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )
+
   def visit_IncludeNode(self, node, context):
     res = RTResult()
     modules = {
@@ -2656,84 +2690,6 @@ class Interpreter:
       Number.null if node.should_return_null else
       List(modules).set_context(context).set_pos(node.pos_start, node.pos_end)
     )
-
-  def visit_makeStrNode(self, node, context):
-    res = RTResult()
-    strs = []
-
-    string_value = res.register(self.visit(node.make_str_value, context))
-    if res.should_return(): return res  
-
-    def ssrun():
-      try:
-        string = str(string_value)
-        strs.append(string)
-      except:  
-        try:
-          string = String(string_value)
-          strs.append(string)
-        except: 
-          print(": Error in Parsing the integer to string :")
-          sys.exit("check if the litteral is in base 10")
-    
-    ssrun()
-    return res.success(
-      Number.null if node.should_return_null else
-      List(strs).set_context(context).set_pos(node.pos_start, node.pos_end)
-    )   
-
-  def visit_makeIntNode(self, node, context):
-    res = RTResult()
-    numbs = []
-
-    integer_value = res.register(self.visit(node.make_int_value, context))
-    if res.should_return(): return res  
-  
-    def rsrun():
-      try: 
-        num = int(integer_value)
-        numbs.append(num)
-      except: 
-        try: 
-          num = int(str(integer_value))
-          numbs.append(num) 
-        except:
-          print(": Parsing the string into num failed :")
-          print("is there a alphebet in the literal passed in? ")
-          sys.exit("or check if the literal is not in base 10 already")
-
-    rsrun()
-    return res.success(
-      Number.null if node.should_return_null else
-      List(numbs).set_context(context).set_pos(node.pos_start, node.pos_end)
-    )
-
-  def visit_makeFloatNode(self, node, context):
-    res = RTResult()
-    floats = []
-
-    float_value = res.register(self.visit(node.make_float_value, context))
-    if res.should_return(): return res
-
-    def rsrun():
-      try:
-        flootes = float(float_value)
-        floats.append(flootes)
-      except:
-        try: 
-          flootes = float(str(float_value))
-          floats.append(flootes)
-        except:
-          print(": Parsing the string into num failed :")
-          print("is there a alphebet in the literal passed in? ")
-          sys.exit("or check if the literal is not in base 10 already")
-
-    rsrun()
-    return res.success(
-      Number.null if node.should_return_null else
-      List(floats).set_context(context).set_pos(node.pos_start, node.pos_end)
-    )
-
   def visit_SleepNode(self, node, context): 
     res = RTResult()
     times = []

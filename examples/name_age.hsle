@@ -1,0 +1,14 @@
+include("all") return 
+
+printh("what is your name?")
+var name = "joe"
+printh("what is your age?")
+var age = 25
+var strang = ""
+var age_string = "your age is"
+
+var inputs = strang + "your name is" + " " + name
+var puputs =  age_string + " " + str(int(age))
+printh("")
+printh(inputs)
+printh(puputs)
