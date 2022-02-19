@@ -10,8 +10,9 @@ $ ./hustle.py run examples/fizzbuzz.hsle
 ```
 
 # MileStones
-- [ ] turing complete
-- [ ] faster then the python interpreter
+- [x] turing complete
+- [ ] Native
+- [ ] More Faster then this language:- https://github.com/iacobucci/stupid_language
 - [ ] memory allocation
 
 

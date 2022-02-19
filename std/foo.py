@@ -2,10 +2,6 @@
 
 # rule110.py
 
-# fully stolen from:- https://github.com/Luki248/rule110
-# this was stolen just to understand how rule110 works, after understanding
-# I will remove this and implement it in hustle
-
 NUMBER_OF_COLUMNS = 120
 
 

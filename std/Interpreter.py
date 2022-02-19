@@ -9,6 +9,8 @@ import random
 
 # TODO: Make command line arguemnents a thing in hustle
 
+sys.setrecursionlimit(10000000)
+
 DIGITS = '0123456789'
 LETTERS = string.ascii_letters
 LETTERS_DIGITS = LETTERS + DIGITS
@@ -2394,10 +2396,10 @@ class SymbolTable:
 
 
 global_symbol_table = SymbolTable()
-global_symbol_table.set("Null", Number.null)
-global_symbol_table.set("False", Number.false)
-global_symbol_table.set("True", Number.true)
-global_symbol_table.set("MATH_PI", Number.math_PI)
+global_symbol_table.set("null", Number.null)
+global_symbol_table.set("false", Number.false)
+global_symbol_table.set("true", Number.true)
+global_symbol_table.set("math_pi", Number.math_PI)
 global_symbol_table.set("printh", BuiltInFunction.print)
 global_symbol_table.set("printh_ret", BuiltInFunction.print_ret)
 global_symbol_table.set("input", BuiltInFunction.input)
