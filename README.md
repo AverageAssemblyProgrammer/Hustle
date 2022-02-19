@@ -10,7 +10,8 @@ $ ./hustle.py run examples/fizzbuzz.hsle
 ```
 
 # MileStones
-- [x] turing complete
+- [x] Turing-Complete
+- [ ] Stactic Type Checking
 - [ ] Native
 - [ ] More Faster then this language:- https://github.com/iacobucci/stupid_language
 - [ ] memory allocation
