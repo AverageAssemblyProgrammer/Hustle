@@ -1,9 +1,4 @@
 include("all") return
 
-// this should not work yet.
 var rest = argv(1)
-if rest == "0" then 
-    // make the interpreter return 0 when there was no argv passed in, this will let us do error reporting
-    printh("nothing")
-end 
 printh(rest)

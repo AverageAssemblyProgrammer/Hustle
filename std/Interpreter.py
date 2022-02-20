@@ -2573,11 +2573,19 @@ class Interpreter:
     argv_count = res.register(self.visit(node.argv_count, context))
     if res.should_return(): return res
    
-    # ./hustle argv1 argv2 argv3 argv4 argv5
+    # I think this is how argv work in python
+    # ./hustle argv0 argv1 argv2 argv3 argv4 .....
+
+    # Context:-
     # ./hustle  run   file  
 
     def main():
-      rs = sys.argv[int(str(int(str(argv_count)) + 2))]
+    # I am adding 2 because the code runner uses 2 args to interpret a file
+    # 1 is run subcommand
+    # other is the file itself
+    # so following my concept of how argvs work in python 
+    # I added 2 args from 0 to subtract the offset 
+      rs = sys.argv[int(str(int(str(argv_count)) + 2))] 
       argvs.append(rs)
 
     main()
@@ -2737,23 +2745,20 @@ class Interpreter:
     rands = []
 
     min_value = res.register(self.visit(node.first_rand_name, context))
-    if res.should_return(): return res
+    if res.should_return(): return res 
 
     max_value = res.register(self.visit(node.second_rand_name, context))
     if res.should_return(): return res
 
-    def rrun():
-      try:
-        num = random.randint(int(str(min_value)), int(str(max_value))) 
-        rands.append(num)
-      except:
-        print(" : getting random numbers failed : ")
-        sys.exit(1)
+    try:
+      num = random.randint(int(str(min_value)), int(str(max_value)))   
+    except:
+      print(" : getting random numbers failed : ")
+      sys.exit(1)
 
-    rrun()
     return res.success(
       Number.null if node.should_return_null else
-      List(rands).set_context(context).set_pos(node.pos_start, node.pos_end)
+      Number(num).set_context(context).set_pos(node.pos_start, node.pos_end)
     )
 
   def visit_ForNode(self, node, context):
