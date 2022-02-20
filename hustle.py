@@ -63,7 +63,10 @@ def run():
 					print(repr(result))
 	except Exception as e:	
 		if str(e) == "list index out of range":
-			throw_error("No File Provided", 1)	
+			if argv[2] == data:
+				return 
+			else:
+				throw_error("No File Provided", 1)
 		else: 
 			print("\n")
 			print(e)

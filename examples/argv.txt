@@ -1,13 +1,10 @@
 :i argc 0
 :b stdin 0
 
-:i returncode 1
-:b stdout 32
+:i returncode 0
+:b stdout 2
 
 
-
-
-argv is not implemented yet
 
 :b stderr 0
 

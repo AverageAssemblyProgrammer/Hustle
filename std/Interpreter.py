@@ -128,7 +128,7 @@ KEYWORDS = [
   'else',
   'for',
   'include',
-  'argv',
+  'Argv',
   'to',
   'step',
   'while',
@@ -909,7 +909,7 @@ class Parser:
       if res.error: return res
       return res.success(make_float_expr)
 
-    elif tok.matches(TT_KEYWORD, 'argv'):
+    elif tok.matches(TT_KEYWORD, 'Argv'):
       argv_expr = res.register(self.argv_expr())
       if res.error: return res
       return res.success(argv_expr)
@@ -1179,10 +1179,10 @@ class Parser:
   def argv_expr(self):
     res = ParseResult()
 
-    if not self.current_tok.matches(TT_KEYWORD, 'argv'):
+    if not self.current_tok.matches(TT_KEYWORD, 'Argv'):
       return res.failure(InvalidSyntaxError(
         self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected 'argv'"
+        f"Expected 'Argv'"
       ))
 
     res.register_advancement()
@@ -2570,15 +2570,15 @@ class Interpreter:
     res = RTResult()
     argvs = []
 
-    #TODO: complete this feature
-
-    argvs_var = res.register(self.visit(node.argv_count, context))
-    if res.should_return(): return res    
+    argv_count = res.register(self.visit(node.argv_count, context))
+    if res.should_return(): return res
+   
     # ./hustle argv1 argv2 argv3 argv4 argv5
     # ./hustle  run   file  
 
     def main():
-      assert False, "argv is not implemented yet"
+      rs = sys.argv[int(str(int(str(argv_count)) + 2))]
+      argvs.append(rs)
 
     main()
     return res.success(

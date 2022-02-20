@@ -1,11 +1,9 @@
 include("all") return
 
 // this should not work yet.
-
-func main()
-    var s = Argv(1)
-    return s
+var rest = argv(1)
+if rest == "0" then 
+    // make the interpreter return 0 when there was no argv passed in, this will let us do error reporting
+    printh("nothing")
 end 
-
-var helo = main()
-printh(helo)
+printh(rest)

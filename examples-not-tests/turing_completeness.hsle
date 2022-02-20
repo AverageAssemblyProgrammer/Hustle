@@ -1,9 +1,12 @@
+// referenced from:- https://github.com/iacobucci/stupid_language/blob/master/examples/infinite
+
 var c = "ciao"
 var space = "_"
 var i = 0
 
-while 1 == 1 then 
-    var i = i + 1
-    var added_tang = c + space + make_str(i) return
+while true then 
+    var i2 = i + 1
+    var i = i2 
+    var added_tang = c + space + make_str(i2) return
     printh(added_tang)
 end     

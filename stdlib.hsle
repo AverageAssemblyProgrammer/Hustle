@@ -28,8 +28,9 @@ func randint(min, max)
      return reted
 end
 
-func Argv(count)
-    argv[count] return 
+func argv(count)
+     var reted = Argv[count] return 
+     return reted
 end 
 
 func exit(code)
