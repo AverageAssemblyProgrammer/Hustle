@@ -179,7 +179,7 @@ class Lexer:
     while self.current_char != None:
       if self.current_char in ' \t':
         self.advance()
-      elif self.current_char == '/':
+      elif self.current_char == '#':
         self.skip_comment()
       elif self.current_char in ';\n':
         tokens.append(Token(TT_NEWLINE, pos_start=self.pos))
@@ -343,7 +343,7 @@ class Lexer:
     pos_start = self.pos.copy()
     self.advance()
 
-    if self.current_char == '=':
+    if self.current_char == '=': 
       self.advance()
       tok_type = TT_GTE
 
@@ -351,11 +351,8 @@ class Lexer:
 
   def skip_comment(self):
     self.advance()
-    if self.current_char == '/':
+    while self.current_char != '\n':
       self.advance()
-      while self.current_char != '\n':
-        self.advance()
-
 
 class NumberNode:
   def __init__(self, tok):

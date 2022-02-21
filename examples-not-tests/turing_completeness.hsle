@@ -4,9 +4,13 @@ var c = "ciao"
 var space = "_"
 var i = 0
 
+include("all") return 
+
+// I think this is how you show turing completeness
+
 while true then 
     var i2 = i + 1
     var i = i2 
-    var added_tang = c + space + make_str(i2) return
+    var added_tang = c + space + str(i2) 
     printh(added_tang)
 end     

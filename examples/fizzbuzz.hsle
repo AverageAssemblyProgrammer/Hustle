@@ -1,7 +1,8 @@
 include("std/BuiltInModules/solutions/fizzbuzz.hsle") return 
-// haha, solutions goo brrrrrr
+# haha, solutions goo brrrrrr
 main(51)
 
 
 
 
+	

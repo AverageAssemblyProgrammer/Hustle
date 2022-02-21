@@ -1,8 +1,3 @@
-;; Thanks tsoding (Alexey Kutepov <reximkut@gmail.com>) for this file that I modified cause I am lazy
-;; tsoding's language:- https://github.com/tsoding/porth
-
-;; Copyright (C) 2021 Alexey Kutepov <reximkut@gmail.com>
-
 ;; Copyright (c) 2022 Akshaj Trivedi <akshajtrivedi189@gmail.com>
 
 ;; Permission is hereby granted, free of charge, to any person
@@ -25,14 +20,15 @@
 ;; CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(defconst hustle-mode-syntax-table
-  (with-syntax-table (copy-syntax-table)
-	(modify-syntax-entry ?/ ". 124b")
-	(modify-syntax-entry ?* ". 23")
-	(modify-syntax-entry ?\n "> b")
-    (modify-syntax-entry ?' "\"")
-    (syntax-table))
-  "Syntax table for `hustle-mode'.")
+(defvar hustle-mode-syntax-table nil "Syntax table for `hustle-mode'.")
+
+(setq hustle-mode-syntax-table
+      (let ( (synTable (make-syntax-table)))
+        ;; python style comment: “# …”
+        (modify-syntax-entry ?# "<" synTable)
+        (modify-syntax-entry ?\n ">" synTable)
+        synTable))
+
 
 (eval-and-compile
   (defconst hustle-keywords
@@ -55,4 +51,4 @@
 (add-to-list 'auto-mode-alist '("\\.hsle\\'" . hustle-mode))
 
 (provide 'hustle-mode)
-;;; porth-mode.el ends here
+;;; hustle-mode.el ends here

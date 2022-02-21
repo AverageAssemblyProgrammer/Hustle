@@ -1,5 +1,5 @@
 include("all") return 
-//var nt = input_int()
+#var nt = input_int()
 var nt = 150
 
 var n1 = 0

@@ -17,42 +17,42 @@ func throw_error(error, error_code, arg)
 end 
 
 func check_subcommand(c)
-	if c == "run " then
+	if str(c) == "run " then
 		//run(filepath)
 		var res = "run"
 		return res
-	elif c == "run" then
+	elif str(c) == "run" then
 		var res = "run"
 		return res
-	elif c == "r " then
+	elif str(c) == "r " then
 		var res = "run"
 		return res
-	elif c == "r" then
+	elif str(c) == "r" then
 		var res = "run"
 		return res
-	elif c == "-r" then
+	elif str(c) == "-r" then
 		var res = "run"
 		return res
-	elif c == "-r " then
+	elif str(c) == "-r " then
 		var res = "run"
 		return res
-	elif c == "help" then
-		var res = "run"
+	elif str(c) == "help" then
+		var res = "help"
 		return res
-	elif c == "help " then
-		var res = "run"
+	elif str(c) == "help " then
+		var res = "help"
 		return res
-	elif c == "h" then
-		var res = "run"
+	elif str(c) == "h" then
+		var res = "help"
 		return res
-	elif c == "-h" then
-		var res = "run"
+	elif str(c) == "-h" then
+		var res = "help"
 		return res
-	elif c == "h " then
-		var res = "run"
+	elif str(c) == "h " then
+		var res = "help"
 		return res
-	elif c == "-h " then
-		var res = "run"
+	elif str(c) == "-h " then
+		var res = "help"
 		return res
 	else
 		throw_error("Unknown Subcommand", 1, c)
@@ -62,13 +62,11 @@ func check_subcommand(c)
 end 
 
 func out_run()
-	printh("give subcommand:- ")
-	var subcommand = input()
+	var subcommand = argv(1)
 	var struct = check_subcommand(subcommand)
 	if struct == "run" then
-		printh("give filepath")
-		var filepath = input()
-		run(filepath)
+		var filepath = argv(2)
+		run(str(filepath))
 	elif struct == "help" then
 		usage()
 		exit(0)
