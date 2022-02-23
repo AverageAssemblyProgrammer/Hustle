@@ -1,0 +1,19 @@
+include("stdlib.hsle") return 
+
+func get_int(ls, num)
+    var l = ls 
+    for i = 0 to len(ls) then 
+        var current_element = pop(ls, 0)
+        if current_element == num then 
+            printh(str(num) + " found at index " + str(i))
+        else 
+            printh(str(num) + " not found at index " + str(i))
+        end
+    end 
+end 
+
+func main()
+    var list2 = [10, 2, 5, 8, 23, 1, 56, 10]
+    get_int(list2, 10)
+end 
+main()

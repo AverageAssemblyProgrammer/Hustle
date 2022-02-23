@@ -1,13 +1,14 @@
+#!/usr/bin/hustle/hustle.py runme
 include("all") return
-//sys("./hustle.py run hustle.hsle")
 
-// because we do not have args right now, so we are going to
-// get filepath with input instead of argv 
+# because we do not have args right now, so we are going to
+# get filepath with input instead of argv 
 
 func usage()
     printh("Subcommands are:- ")
-    printh("    run    <filepath>    - run the file")
-    printh("    help                 - will print this help screen without the non zero exit")      
+    printh("    run    <filepath>                   - run the file")
+    printh("    #!(fullpath_to_code_runner) runme   - will run itself, so you can make the file a exe")
+    printh("    help                                - will print this help screen without the non zero exit")      
 end 
 
 func throw_error(error, error_code, arg)
@@ -18,7 +19,7 @@ end
 
 func check_subcommand(c)
 	if str(c) == "run " then
-		//run(filepath)
+		#run(filepath)
 		var res = "run"
 		return res
 	elif str(c) == "run" then
@@ -54,6 +55,12 @@ func check_subcommand(c)
 	elif str(c) == "-h " then
 		var res = "help"
 		return res
+	elif str(c) == "runme" then
+		var res = "runme"
+		return res
+	elif str(c) == "runme " then
+		var res = "runme"
+		return res
 	else
 		throw_error("Unknown Subcommand", 1, c)
 		usage()
@@ -65,6 +72,9 @@ func out_run()
 	var subcommand = argv(1)
 	var struct = check_subcommand(subcommand)
 	if struct == "run" then
+		var filepath = argv(2)
+		run(str(filepath))
+	elif struct == "runme" then
 		var filepath = argv(2)
 		run(str(filepath))
 	elif struct == "help" then

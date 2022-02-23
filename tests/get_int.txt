@@ -1,0 +1,20 @@
+:i argc 0
+:b stdin 0
+
+:i returncode 0
+:b stdout 188
+
+
+10 found at index 0
+10 not found at index 1
+10 not found at index 2
+10 not found at index 3
+10 not found at index 4
+10 not found at index 5
+10 not found at index 6
+10 found at index 7
+
+
+
+:b stderr 0
+

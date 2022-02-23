@@ -1,3 +1,4 @@
+#!/usr/bin/hustle/hustle.hsle runme
 include("all") return 
 #var nt = input_int()
 var nt = 150

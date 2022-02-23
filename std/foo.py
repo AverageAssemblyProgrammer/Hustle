@@ -1,39 +1,58 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3 
+# this is a reference
 
-# rule110.py
+import random
+import os
+import time
 
-NUMBER_OF_COLUMNS = 120
+def listtostr(x):
+    s = ''
 
+    for i in range(len(x)):
+        if x[i] == 1:
+            s += '*'
+        else:
+            s += ' '
 
-def rule110(number_of_columns):
-    number_of_rows = number_of_columns - 2
+    return(s)
 
-    line = " "*(number_of_columns - 1) + "*"
+def rule110(x, y, z):
+    if x == 1 and y == 1 and z == 1:
+        return(0)
+    elif x == 1 and y == 1 and z == 0:
+        return(1)
+    elif x == 1 and y == 0 and z == 1:
+        return(1)
+    elif x == 1 and y == 0 and z == 0:
+        return(0)
+    elif x == 0 and y == 1 and z == 1:
+        return(1)
+    elif x == 0 and y == 1 and z == 0:
+        return(1)
+    elif x == 0 and y == 0 and z == 1:
+        return(1)
+    elif x == 0 and y == 0 and z == 0:
+        return(0)
 
-    for i in range(number_of_rows):
-        next_line = " "
-        for j in range(1, number_of_columns-1):
-            pattern = line[j-1] + line[j] + line[j+1]
-            if pattern == "   ":
-                next_line += " "
-            elif pattern == "  *":
-                next_line += "*"
-            elif pattern == " * ":
-                next_line += "*"
-            elif pattern == " **":
-                next_line += "*"
-            elif pattern == "*  ":
-                next_line += " "
-            elif pattern == "* *":
-                next_line += "*"
-            elif pattern == "** ":
-                next_line += "*"
-            elif pattern == "***":
-                next_line += " "
-        next_line += " "
-        line = next_line
-        print(line)
+rows, columns = os.popen('stty size', 'r').read().split()
 
+l = []
+l2 = []
 
-if __name__ == "__main__":
-    rule110(NUMBER_OF_COLUMNS)
+for i in range(int(columns)):
+    l.append(random.randint(0, 1))
+    
+print('\n' + listtostr(l))
+
+while True:
+    for i in range(len(l) - 1):
+        l2.append(rule110(l[i -1], l[i], l[i + 1]))
+
+    l2.append(rule110(l[len(l) - 2], l[len(l) - 1], l[0]))
+
+    print(listtostr(l2))
+
+    l = l2
+    l2 = []
+    
+    time.sleep(.03)
