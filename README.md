@@ -4,15 +4,15 @@ WARNING!! HUSTLE IS A EXPERIMENTAL LANGUAGE. IT IS NOT COMPLETE.
 
 # Installation
 ```console
-$ ./add_to_bin.sh 
+$ ./install.sh 
 ```
 give your password, and you are done
 
 # Quick Start
 
 ```console
-$ ./hustle.hsle help
-$ ./hustle.hsle run examples/fizzbuzz.hsle
+$ ./hustle.py help
+$ ./hustle.py run examples/fizzbuzz.hsle
 ```
 
 # MileStones
@@ -25,7 +25,7 @@ $ ./hustle.hsle run examples/fizzbuzz.hsle
 # Make a hustle file a exe
 
 ```example
-#!/usr/bin/hustle.hsle runme 
+#!/usr/bin/hustle.py runme 
 ```
 put this line at the start of your program, then give it 
 executable permisions and then run it as a exe.
