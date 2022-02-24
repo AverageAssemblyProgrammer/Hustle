@@ -1,4 +1,12 @@
-include("all") return
+#!/usr/bin/hustle/hustle.py runme
+include("all") return 
 
-var rest = argv(1)
-printh(rest)
+func check_subcommand(subcommand)
+    var c = subcommand
+    if str(c) == "hello" then 
+        printh("hello")
+    end 
+end 
+
+var subcommand = argv(1)
+check_subcommand(subcommand)
