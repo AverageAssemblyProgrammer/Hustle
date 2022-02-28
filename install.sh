@@ -2,6 +2,8 @@
 
 set -xe
 
+# RUN THIS FILE ONLY IF YOU WANT TO ADD EXECUTABLE PRIVELAGES TO ANY FILE USING A NEVER CHANGING DIRECTORY
+
 sudo rm -rf /usr/bin/hustle
 sudo mkdir /usr/bin/hustle
 sudo cp hustle.py /usr/bin/hustle

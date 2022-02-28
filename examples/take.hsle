@@ -1,9 +1,8 @@
-include("all") return 
+include("stdlib.hsle") return 
 
 func main()
-    var ls = ["hello"]
-    var te = takeElement(ls, 1) return
-    return te 
+    var ls =[0,1,2,3,4,5,6,7,8,9]
+    var f = take(ls, 3)
+    printh(f)
 end 
-var m = main()
-printh(m)
+main()

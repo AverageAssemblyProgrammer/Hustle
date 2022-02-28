@@ -86,3 +86,6 @@ int : depends on :- stdlib
 
 float : KEYWORD:float LPAREN (STRING or IDENTIFIER or INT) RPAREN
 float : depends on :- stdlib 
+
+take : KEYWORD:take LPAREN (IDENTIFIER COMMA (INT or IDENTIFIER)) RPAREN
+take : depends on :- stdlib

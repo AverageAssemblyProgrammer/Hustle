@@ -2760,26 +2760,32 @@ class Interpreter:
     index = res.register(self.visit(node.index_name, context))
     if res.should_return(): return res
 
+    # github copilot helped me out on this one lul
+    def take_element(list_name, index):
+      if isinstance(list_name, List):
+        if isinstance(index, Number):
+          if index.value < len(list_name.elements):
+            return list_name.elements[index.value]
+          else:
+            print("RUNTIME ERROR: index out of range")
+            sys.exit("Index Out of Range: " + str(index.value))
+        else:
+          print("RUNTIME ERROR: index is not a number")
+          sys.exit("Index is not a number: " + str(index))
+      else:
+        print("RUNTIME ERROR: list is not a list")
+        sys.exit("List is not a list: " + str(list_name))
+    lses.append(take_element(list_name, index))
+    
     try:
-      ie = int(str(index))
-      l = list(str(list_name))
-      chks = l[ie]
-      if isinstance(chks, int):
-        rets = l[ie]
-        return res.success(
-          Number.null if node.should_return_null else
-          Number(rets).set_context(context).set_pos(node.pos_start, node.pos_end)
-        )
-      elif isinstance(chks, str):
-        ret = l[ie]
-        return res.success(
-          Number.null if node.should_return_null else
-          String(ret).set_context(context).set_pos(node.pos_start, node.pos_end)
-        )
-      else: 
-        print("Runtime Error: could not get index from list")
+      take_element(list_name, index)
     except Exception as e:
-      print(e)
+      print("RUNTIME ERROR: " + str(e))
+
+    return res.success(
+      Number.null if node.should_return_null else
+      List(lses).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )
 
   def visit_randIntNode(self, node, context):
     res = RTResult()

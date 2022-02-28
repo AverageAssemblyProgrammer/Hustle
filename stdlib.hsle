@@ -36,3 +36,8 @@ end
 func exit(code)
      Exit(code) return 
 end
+
+func take(ls, c)
+     var reted = takeElement(ls, c) return
+     return reted 
+end 
