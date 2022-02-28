@@ -1,4 +1,6 @@
 from arrow_strings.strings_with_arrows import *
+from keywords.keywords import *
+from ops.ops import *
 import string
 import os
 import math
@@ -7,7 +9,8 @@ import sys
 import time 
 import random
 
-# TODO: Make command line arguemnents a thing in hustle
+# TODO: takeElement keyword is not implemented yet 
+# TODO: implement game of life in hustle
 
 sys.setrecursionlimit(10000000)
 
@@ -84,61 +87,7 @@ class Position:
   def copy(self):
     return Position(self.idx, self.ln, self.col, self.fn, self.ftxt)
 
-TT_INT				= 'INT'
-TT_FLOAT    	= 'FLOAT'
-TT_STRING     = 'STRING'
-TT_IDENTIFIER	= 'IDENTIFIER'
-TT_KEYWORD		= 'KEYWORD'
-TT_PLUS     	= 'PLUS'
-TT_MINUS    	= 'MINUS'
-TT_MUL      	= 'MUL'
-TT_MOD        = 'MOD'
-TT_DIV      	= 'DIV'
-TT_POW				= 'POW'
-TT_EQ					= 'EQ'
-TT_LPAREN   	= 'LPAREN'
-TT_RPAREN   	= 'RPAREN'
-TT_LSQUARE    = 'LSQUARE'
-TT_RSQUARE    = 'RSQUARE'
-TT_EE					= 'EE'
-TT_NE					= 'NE'
-TT_LT					= 'LT'
-TT_GT					= 'GT'
-TT_LTE				= 'LTE'
-TT_GTE				= 'GTE'
-TT_COMMA			= 'COMMA'
-TT_ARROW			= 'ARROW'
-TT_NEWLINE		= 'NEWLINE'
-TT_EOF				= 'EOF'
 
-KEYWORDS = [
-  'var',
-  'and',
-  'or',
-  'randInt',
-  'sleep',
-  'Exit',
-  'make_str',
-  'make_int',
-  'make_float',
-  'not',
-  'system',
-  'if',
-  'elif',
-  'else',
-  'for',
-  'include',
-  'Argv',
-  'to',
-  'step',
-  'while',
-  'func',
-  'then',
-  'end',
-  'return',
-  'continue',
-  'break'
-]
 
 class Token:
   def __init__(self, type_, value=None, pos_start=None, pos_end=None):
@@ -481,6 +430,15 @@ class ArgvNode:
     self.pos_start = self.argv_count.pos_start
     self.pos_end = self.argv_count.pos_end 
 
+class takeElementNode:
+  def __init__(self, list_name, index_name, body_node, should_return_null):
+    self.list_name = list_name
+    self.index_name = index_name
+    self.body_node = body_node
+    self.should_return_null = should_return_null 
+
+    self.pos_start = self.list_name.pos_start
+    self.pos_end   = self.index_name.pos_end
 
 class randIntNode:
   def __init__(self, first_rand_name, second_rand_name, body_node, should_return_null):
@@ -915,6 +873,11 @@ class Parser:
       randInt_expr = res.register(self.randInt_expr())
       if res.error: return res
       return res.success(randInt_expr)
+
+    elif tok.matches(TT_KEYWORD, 'takeElement'):
+      takeElement_expr = res.register(self.takeElement_expr())
+      if res.error: return res
+      return res.success(takeElement_expr)
 
     elif tok.matches(TT_KEYWORD, 'system'):
       system_expr = res.register(self.system_expr())
@@ -1417,6 +1380,55 @@ class Parser:
     if res.error: return res
 
     return res.success(IncludeNode(include_name_tok, body, False))
+
+  def takeElement_expr(self):
+    res = ParseResult()
+
+    if not self.current_tok.matches(TT_KEYWORD, 'takeElement'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'takeElement'"
+      ))
+
+    res.register_advancement()
+    self.advance()   
+    
+    if self.current_tok.type != TT_LPAREN:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '('"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_IDENTIFIER:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'int' or 'float' or 'identifier'"
+      ))    
+        
+    first_value = res.register(self.expr())
+    if res.error: return res  
+    res.register_advancement()
+    self.advance() 
+
+    if self.current_tok.type != TT_INT:
+      if self.current_tok.type != TT_IDENTIFIER:
+        return res.failure(InvalidSyntaxError(
+          self.current_tok.pos_start, self.current_tok.pos_end,
+          f"Expected 'int' or 'identifier'"
+        ))     
+        
+    second_value = res.register(self.expr())
+    if res.error: return res  
+    res.register_advancement()
+    self.advance() 
+
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(takeElementNode(first_value, second_value, body, False))
 
   def randInt_expr(self): 
     res = ParseResult()
@@ -2697,6 +2709,7 @@ class Interpreter:
       Number.null if node.should_return_null else
       List(modules).set_context(context).set_pos(node.pos_start, node.pos_end)
     )
+
   def visit_SleepNode(self, node, context): 
     res = RTResult()
     times = []
@@ -2736,6 +2749,37 @@ class Interpreter:
       Number.null if node.should_return_null else
       List(commands).set_context(context).set_pos(node.pos_start, node.pos_end)
     )
+
+  def visit_takeElementNode(self, node, context):
+    res = RTResult()
+    lses = []
+
+    list_name = res.register(self.visit(node.list_name, context))
+    if res.should_return(): return res 
+
+    index = res.register(self.visit(node.index_name, context))
+    if res.should_return(): return res
+
+    try:
+      ie = int(str(index))
+      l = list(str(list_name))
+      chks = l[ie]
+      if isinstance(chks, int):
+        rets = l[ie]
+        return res.success(
+          Number.null if node.should_return_null else
+          Number(rets).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+      elif isinstance(chks, str):
+        ret = l[ie]
+        return res.success(
+          Number.null if node.should_return_null else
+          String(ret).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+      else: 
+        print("Runtime Error: could not get index from list")
+    except Exception as e:
+      print(e)
 
   def visit_randIntNode(self, node, context):
     res = RTResult()

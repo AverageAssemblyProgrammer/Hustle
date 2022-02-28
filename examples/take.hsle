@@ -1,0 +1,9 @@
+include("all") return 
+
+func main()
+    var ls = ["hello"]
+    var te = takeElement(ls, 1) return
+    return te 
+end 
+var m = main()
+printh(m)

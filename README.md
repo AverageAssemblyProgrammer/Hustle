@@ -17,6 +17,7 @@ $ ./hustle.py run examples/fizzbuzz.hsle
 
 # MileStones
 - [x] Turing-Complete
+- [ ] Compiled into intermidiate representation
 - [ ] Stactic Type Checking
 - [ ] More Faster then this language:- https://github.com/iacobucci/stupid_language
 - [ ] memory allocation

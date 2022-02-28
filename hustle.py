@@ -19,8 +19,6 @@ def open_file(filename):
 def check_subcommand(command):
 	if command == "run" or command == "Run" or command == "RUN":
 		return "run"
-	elif command == "runme" or command == "Runme" or command == "RUNME":
-		return "runme"
 	elif command == "Help" or command == "help" or command == "HELP" or command == "-h":
 		ret = "help"
 		return ret
@@ -57,18 +55,7 @@ def run():
 		# TODO: unhardcode this error
 		throw_error("No Subcomand Provided", 1)
 	try:
-		if struct == "runme":	
-			data = argv[2]
-			text = "run(\""+data+"\")"
-			result, error = stdlib.run('<stdin>',text)
-			if error:
-				print(error.as_string())
-			elif result:
-				if len(result.elements) == 1:
-					print(repr(result.elements[0]))
-				else:
-					print(repr(result))
-		elif struct == "run":	
+		if struct == "run":	
 			data = open_file(argv[2])
 			text = "run(\""+data+"\")"
 			result, error = stdlib.run('<stdin>',text)
