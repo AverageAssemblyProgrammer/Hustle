@@ -1,0 +1,19 @@
+include("all") return 
+
+func reverse_num(x)
+    var n = x 
+    var temp = n 	    
+    var rev = 0
+    while (n>0) then 
+    	var dig = n % 10
+		var rev = rev * 10 + dig
+		var n = n + 1
+    end 
+    return rev 
+end
+
+func main()
+    var re = reverse_num(123)
+    printh(re) # output should be 321
+end 
+main()

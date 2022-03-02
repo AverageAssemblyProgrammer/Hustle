@@ -1,0 +1,39 @@
+include("stdlib") return 
+
+# trying to implement rule 110 to show turing completeness
+
+func rule110(number_of_columns)
+    var number_of_rows = number_of_columns - 2
+
+    var line = " "*(number_of_columns - 1) + "*"
+
+    for i = 0 to number_of_rows then 
+        var next_line = " "
+        for j = 1 to number_of_columns-1 then 
+            var pattern = take(line, j-1) + take(line, j) + take(line, j+1)
+            if str(pattern) == "   " then 
+                var next_line = " " + next_line
+            elif str(pattern) == "  *" then 
+                var next_line = "*" + next_line
+            elif str(pattern) == " * " then 
+                var next_line = "*" + next_line
+            elif str(pattern) == " **" then 
+                var next_line = "*" + next_line 
+            elif str(pattern) == "*  " then 
+                var next_line = " " + next_line
+            elif str(pattern) == "* *" then 
+                var next_line = "*" + next_line
+            elif str(pattern) == "** " then 
+                var next_line = "*" + next_line
+            elif str(pattern) == "***" then 
+                var next_line = " " + next_line 
+            end 
+        end 
+        var next_line = " " + next_line 
+        var line = next_line
+        printh(line)
+    end 
+end 
+
+var NUMBER_OF_COLUMNS = 120
+rule110(NUMBER_OF_COLUMNS)
