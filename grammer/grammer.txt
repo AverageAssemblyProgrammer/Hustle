@@ -1,9 +1,3 @@
-* all the statements, expresions and functions are uppercase in this file, 
-but in the code please write the code in lowercase.
-(some still may be uppercase) *
-
-if any problem please see the stdlib file. 
-
 statements  : newline* statement (NEWLINE+ statement)* NEWLINE*
 
 statement		: KEYWORD:return expr?

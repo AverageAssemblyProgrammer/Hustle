@@ -1,0 +1,19 @@
+include("all") return 
+include("examples-not-tests/train-data.hsle") return 
+var COLS = 70
+
+func get_num_hashes(noc) 
+    for i = 1 to noc + 1 then 
+        var hs = "frame" + str(i)
+        # afterwards
+    end 
+end 
+
+func display()
+    get_num_hashes(COLS)
+end 
+
+func main()
+    display()
+end 
+main()

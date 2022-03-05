@@ -41,3 +41,8 @@ func take(ls, c)
      var reted = takeElement(ls, c) return
      return reted 
 end 
+
+func lenstr(strs)
+     var reted = lenStr(strs) return
+     return reted
+end

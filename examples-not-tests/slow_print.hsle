@@ -1,0 +1,9 @@
+include("stdlib") return 
+
+func print(string)
+    for i = 0 to lenstr(string) then 
+        var t = take(string, i)
+        tsleep(0.5)
+        printh(str(t))
+    end  
+end 

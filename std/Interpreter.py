@@ -1,4 +1,12 @@
-from numpy import str_
+# THIS WHOLE THING IS MOSTLY THE WORK THAT WAS DONE BY CODEPULSE 
+# HE MADE A TUTORIAL AND i JUST FOLLOROWED IT (BY FOLLOWED IT I MEAN CTRL+C AND CTRL+V)
+# I JUST WANTED TO TELL THAT THANK YOU TO CODEPULSE FOR KINDA GIVING ME A STARTER LANGUAGE TO WORK WITH
+# I AM JUST GONNA BUILD ON THAT JUST FOR THE INTERPRETER LANGUAGE
+# FOR THE COMPILED HUSTLE LANGUAGE I WILL USE MY OWN CODEBASE THAT MEANS TO CTRL+C AND CTRL+V
+# THIS PROJECT IS NOTHING BUT A SMALL PROJECT THAT I AM DOING TO UNDERSTAND LEXING AND PARING
+# AFTER I AM DONE WITH THAT I WILL BE MAKING THE COMPILED VERSION OF THE LANGUAGE WITHOUT ANY OTHER GUY'S HELP
+
+# codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
 from arrow_strings.strings_with_arrows import *
 from keywords.keywords import *
 from ops.ops import *
@@ -10,7 +18,6 @@ import sys
 import time 
 import random
 
-# TODO: takeElement keyword is not implemented yet 
 # TODO: implement game of life in hustle
 
 sys.setrecursionlimit(10000000)
@@ -430,6 +437,15 @@ class ArgvNode:
 
     self.pos_start = self.argv_count.pos_start
     self.pos_end = self.argv_count.pos_end 
+
+class lenStrNode:
+  def __init__(self, string_tok, body_node, should_return_null):
+    self.string_tok = string_tok
+    self.body_node = body_node
+    self.should_return_null = should_return_null
+
+    self.pos_start = self.string_tok.pos_start
+    self.pos_end = self.string_tok.pos_end
 
 class takeElementNode:
   def __init__(self, list_name, index_name, body_node, should_return_null):
@@ -879,6 +895,11 @@ class Parser:
       takeElement_expr = res.register(self.takeElement_expr())
       if res.error: return res
       return res.success(takeElement_expr)
+
+    elif tok.matches(TT_KEYWORD, 'lenStr'):
+      lenStr_expr = res.register(self.lenStr_expr())
+      if res.error: return res
+      return res.success(lenStr_expr)
 
     elif tok.matches(TT_KEYWORD, 'system'):
       system_expr = res.register(self.system_expr())
@@ -1382,6 +1403,44 @@ class Parser:
 
     return res.success(IncludeNode(include_name_tok, body, False))
 
+  def lenStr_expr(self):
+    res = ParseResult()
+
+    if not self.current_tok.matches(TT_KEYWORD, 'lenStr'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'lenStr'"
+      ))
+
+    res.register_advancement()
+    self.advance()   
+    
+    if self.current_tok.type != TT_LPAREN:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '('"
+      ))
+
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_IDENTIFIER:
+      if self.current_tok.type != TT_STRING:
+        return res.failure(InvalidSyntaxError(
+          self.current_tok.pos_start, self.current_tok.pos_end,
+          f"Expected 'string' or identifier'"
+        ))    
+        
+    str_name = res.register(self.expr())
+    if res.error: return res  
+    res.register_advancement()
+    self.advance() 
+
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(lenStrNode(str_name, body, False))
+
   def takeElement_expr(self):
     res = ParseResult()
 
@@ -1406,7 +1465,7 @@ class Parser:
     if self.current_tok.type != TT_IDENTIFIER:
       return res.failure(InvalidSyntaxError(
         self.current_tok.pos_start, self.current_tok.pos_end,
-        f"Expected 'int' or 'float' or 'identifier'"
+        f"Expected 'identifier'"
       ))    
         
     first_value = res.register(self.expr())
@@ -2150,7 +2209,7 @@ class Function(BaseFunction):
 
   def execute(self, args):
     res = RTResult()
-    interpreter = Interpreter()
+    interpreter = Interpreter() 
     exec_ctx = self.generate_new_context()
 
     res.register(self.check_and_populate_args(self.arg_names, args, exec_ctx))
@@ -2326,7 +2385,7 @@ class BuiltInFunction(BaseFunction):
         "Argument must be list",
         exec_ctx
       ))
-
+      
     return RTResult().success(Number(len(list_.elements)))
   execute_len.arg_names = ["list"]
 
@@ -2718,12 +2777,12 @@ class Interpreter:
     sleep_value = res.register(self.visit(node.time_name, context))
     if res.should_return(): return res   
 
-    if int(str(sleep_value)) <= 0:
+    if float(str(sleep_value)) <= 0:
       print("RUNTIME ERROR: sleep value is negative or null")
       print("time cannot sleep for " + sleep_value + " seconds")
       sys.exit("Syntax Error: Incorrect Syntax " + str(sleep_value))
     else:
-      time.sleep(int(str(sleep_value)))
+      time.sleep(float(str(sleep_value)))
 
     return res.success(
       Number.null if node.should_return_null else
@@ -2749,6 +2808,24 @@ class Interpreter:
     return res.success(
       Number.null if node.should_return_null else
       List(commands).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )
+
+  def visit_lenStrNode(self, node, context):
+    res = RTResult()
+
+    str_tok = res.register(self.visit(node.string_tok, context))
+    if res.should_return(): return res
+
+    # try to take the length of the string that is str_tok and if it fails print the exception 
+    try:
+      length = len(str(str_tok))
+    except Exception as e:
+      print("RUNTIME ERROR: " + e)
+      sys.exit("RUNTIME Error: could not take the length of the string " + str(str_tok))
+
+    return res.success(
+      Number.null if node.should_return_null else
+      Number(length).set_context(context).set_pos(node.pos_start, node.pos_end)
     )
 
   def visit_takeElementNode(self, node, context):

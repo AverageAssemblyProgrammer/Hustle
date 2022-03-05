@@ -43,10 +43,10 @@
 
 ;;;###autoload
 (define-derived-mode hustle-mode prog-mode "hustle"
-  "Major Mode for editing Hustle Souce Code."
+  "Major Mode for editing Hustle Source Code."
   :syntax-table hustle-mode-syntax-table
   (setq font-lock-defaults '(hustle-highlights))
-  (setq-local comment-start "// "))
+  (setq-local comment-start "# "))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.hsle\\'" . hustle-mode))

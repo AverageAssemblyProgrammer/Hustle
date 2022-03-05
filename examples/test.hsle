@@ -1,1 +1,3 @@
-return 0
+include("stdlib") return 
+
+printh(eval("5*5"))
