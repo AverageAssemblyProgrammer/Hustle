@@ -36,7 +36,7 @@
       "and" "or" "tsleep" "not" "elif" "func" "return"
       "continue" "break" "step" "sys" "int" "str"
       "float" "randint" "not" "for" "to" "printh"
-      "exit" "argv")))
+      "exit" "argv" "strlen" "take" "len")))
 
 (defconst hustle-highlights
   `((,(regexp-opt hustle-keywords 'symbols) . font-lock-keyword-face)))

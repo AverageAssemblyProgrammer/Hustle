@@ -1,4 +1,4 @@
-#!/usr/bin/hustle/hustle.py runme
+#!/usr/bin/hustle/hustle.py run
 include("all") return 
 
 func check_subcommand(subcommand)

@@ -42,7 +42,12 @@ func take(ls, c)
      return reted 
 end 
 
-func lenstr(strs)
+func strlen(strs)
      var reted = lenStr(strs) return
+     return reted
+end
+
+func shuffle(lst)
+     var reted = Shuffle(lst) return
      return reted
 end

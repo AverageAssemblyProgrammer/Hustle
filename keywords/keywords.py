@@ -4,7 +4,7 @@ KEYWORDS = [
   'or',
   'randInt',
   'takeElement',
-  'Eval',
+  'Shuffle',
   'lenStr',
   'sleep',
   'Exit',

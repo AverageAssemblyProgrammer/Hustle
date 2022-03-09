@@ -1,0 +1,66 @@
+# this is not completed yet
+var ROW = "###########" # 11 characters I believe
+# but the row len we are working with is 27
+var FRAME_RATE = 30
+include("all") return 
+var particle_row = ["#", "#", "#", "#", "*", "*", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"] # 16 characters I believe
+
+var ROWS = 12
+
+# 0. ###########                   
+# 1. ###*#######  
+# 2. #########*# 
+# 3. *######*###           
+# 4. #####*#####
+
+func add_astricx(noa)
+    for i = 0 to noa then 
+        if len(particle_row != 0) then 
+            pop(particle_row, 0)
+            append(particle_row, "*")
+        end 
+    end 
+end
+
+func talculate_row_height(rws)  
+    var mrs = str(ROW) + "#"
+    var checki = 0
+    for i = 0 to rws then 
+        var mrs = mrs + "#"
+	var checki = checki + 1
+    end
+    if checki == rws then 
+	return mrs
+    end
+end 
+
+func talculate_pos_particle(row, col, nop) 
+    var mystr = ""
+    for i = 0 to row then 
+        for j = 0 to col then 
+            for l = 0 to nop then 
+                var new_pos = shuffle(particle_row)
+		for n = 0 to len(new_pos) then 
+		    var char = pop(new_pos,0)
+		    var mystr = mystr + char
+	            if strlen(mystr) == 20 then
+		        return mystr
+		    end 
+	        end 
+            end  
+	end 
+    end        
+end 
+
+func display(ROW1)
+    printh(ROW1)
+end
+
+func main()
+    var rsw = talculate_pos_particle(1, 1, 1)
+    for i = 0 to ROWS step(1) then
+        display(rsw)	
+    end 
+end
+
+main()

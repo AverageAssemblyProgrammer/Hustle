@@ -438,6 +438,15 @@ class ArgvNode:
     self.pos_start = self.argv_count.pos_start
     self.pos_end = self.argv_count.pos_end 
 
+class ShuffleNode:
+  def __init__(self, list_name, body_node, should_return_null):
+    self.list_name = list_name
+    self.body_node = body_node
+    self.should_return_null = should_return_null
+
+    self.pos_start = self.list_name.pos_start
+    self.pos_end = self.list_name.pos_end
+
 class lenStrNode:
   def __init__(self, string_tok, body_node, should_return_null):
     self.string_tok = string_tok
@@ -900,6 +909,11 @@ class Parser:
       lenStr_expr = res.register(self.lenStr_expr())
       if res.error: return res
       return res.success(lenStr_expr)
+
+    elif tok.matches(TT_KEYWORD, 'Shuffle'):
+      Shuffle_expr = res.register(self.Shuffle_expr())
+      if res.error: return res
+      return res.success(Shuffle_expr)
 
     elif tok.matches(TT_KEYWORD, 'system'):
       system_expr = res.register(self.system_expr())
@@ -1402,6 +1416,43 @@ class Parser:
     if res.error: return res
 
     return res.success(IncludeNode(include_name_tok, body, False))
+
+  def Shuffle_expr(self):
+    res = ParseResult()
+
+    if not self.current_tok.matches(TT_KEYWORD, 'Shuffle'):
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'Shuffle'"
+      ))
+    
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_LPAREN:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected '('"
+      ))
+    
+    res.register_advancement()
+    self.advance()
+
+    if self.current_tok.type != TT_IDENTIFIER:
+      return res.failure(InvalidSyntaxError(
+        self.current_tok.pos_start, self.current_tok.pos_end,
+        f"Expected 'identifier'"
+      ))    
+        
+    first_value = res.register(self.expr())
+    if res.error: return res  
+    res.register_advancement()
+    self.advance() 
+  
+    body = res.register(self.statement())
+    if res.error: return res
+
+    return res.success(ShuffleNode(first_value, body, False))    
 
   def lenStr_expr(self):
     res = ParseResult()
@@ -2809,6 +2860,27 @@ class Interpreter:
       Number.null if node.should_return_null else
       List(commands).set_context(context).set_pos(node.pos_start, node.pos_end)
     )
+
+  def visit_ShuffleNode(self, node, context):
+    res = RTResult()
+
+    shuffle_value = res.register(self.visit(node.list_name, context))
+    if res.should_return(): return res
+
+    # TODO: implement a shuffle function that shuffles a list
+    if isinstance(shuffle_value, List):
+      list_name = shuffle_value.elements
+      random.shuffle(list_name)
+    else:
+      print("RUNTIME ERROR: shuffle value is not a list")
+      print("make sure the value is a list")
+      sys.exit("Syntax Error: Incorrect Syntax " + str(shuffle_value))
+
+    return res.success(
+      Number.null if node.should_return_null else
+      # convert this back to List() when you implemented the shuffle function
+      List(list_name).set_context(context).set_pos(node.pos_start, node.pos_end)
+    )    
 
   def visit_lenStrNode(self, node, context):
     res = RTResult()

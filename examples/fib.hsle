@@ -1,4 +1,4 @@
-#!/usr/bin/hustle/hustle.py runme
+#!/usr/bin/hustle/hustle.py run
 include("all") return 
 #var nt = input_int()
 var nt = 150

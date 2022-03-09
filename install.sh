@@ -10,3 +10,5 @@ sudo cp hustle.py /usr/bin/hustle
 sudo cp stdlib.hsle /usr/bin/hustle 
 sudo cp std -r /usr/bin/hustle
 sudo cp arrow_strings -r /usr/bin/hustle
+sudo cp keywords -r /usr/bin/hustle
+sudo cp ops -r /usr/bin/hustle

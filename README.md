@@ -32,7 +32,7 @@ $ ./hustle.py run examples/fizzbuzz.hsle
 # Make a hustle file a exe
 
 ```example
-#!/usr/bin/hustle.py runme 
+#!/usr/bin/hustle.py run 
 ```
 put this line at the start of your program, then give it 
 executable permisions and then run it as a exe.
