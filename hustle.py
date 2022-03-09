@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-from sys import *
-import std.Interpreter as stdlib
 import os
 from os import *
+from sys import *
+import std.Interpreter as stdlib
 from colorama import Fore
 
 # MIT License 
 # Copyright (c) 2022 Akshaj Trivedi and Hustle Contributers
+
+if os.name == "nt":
+    # you can bypass this by just deleting this if statement and then make it compatable with windows, well it is quite compatable just need to change few things
+    print("this file is not windows compatable yet")
 
 def open_file(filename):
 	if filename.endswith('.hsle'):

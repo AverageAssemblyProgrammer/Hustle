@@ -1,0 +1,15 @@
+include("all") return 
+include("examples-not-tests/frame-data.hsle") return 
+
+func animation(name, secuence, times, seconds) 
+    for i = 0 to times then 
+        for s = 0 to strlen(secuence) then 
+            sys("clear")
+            var st = s
+            var vs = take(secuence, st)
+            var ns = take(name, int(vs))
+            printh(ns)
+            tsleep(seconds)
+        end
+    end 
+end
