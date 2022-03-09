@@ -23,7 +23,7 @@ $ ./hustle.py run examples/fizzbuzz.hsle
 
 # MileStones
 - [x] Turing-Complete
-- [ ] Compiled into intermidiate representation
+- [ ] Compiled into intermidiate representation (string to work with compiled version of hustle)
 - [ ] Stactic Type Checking
 - [ ] More Faster then this language:- https://github.com/iacobucci/stupid_language
 - [ ] memory allocation
