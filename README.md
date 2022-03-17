@@ -36,6 +36,6 @@ $ ./hustle.py run examples/fizzbuzz.hsle
 ```
 put this line at the start of your program, then give it 
 executable permisions and then run it as a exe.
-DO NOT FORGET TO PUT "runme" AT THE END OF THE LINE OTHERWISE THE PROGRAM WILL FAIL
+DO NOT FORGET TO PUT "run" AT THE END OF THE LINE OTHERWISE THE PROGRAM WILL FAIL
 
 
