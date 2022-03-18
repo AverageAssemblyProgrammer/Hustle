@@ -12,6 +12,18 @@ if os.name == "nt":
     # you can bypass this by just deleting this if statement and then make it compatable with windows, well it is quite compatable just need to change few things
     print("this file is not windows compatable yet")
 
+def usage(white_help=True):
+	if white_help:
+		print(Fore.WHITE + "Subcommands are :-") 
+		print(Fore.WHITE + "    run    <filepath>    " + "         - interprete the program.")
+		print(Fore.WHITE + "    com    <filepath>    " + "         - compile the program.")
+		print(Fore.WHITE + "    help                 " + "         - print this help screen.")
+	else: 
+		print("Subcommands are :-")
+		print("    run    <filepath>    " + "         - run will interprete the program.")
+		print("    com    <filepath>    " + "         - compile the program.")
+		print("    help                 " + "         - help will print this help screen.")
+
 
 def check_subcommand(command):
 	if command == "run" or command == "Run" or command == "RUN":
@@ -19,22 +31,12 @@ def check_subcommand(command):
 	elif command == "Help" or command == "help" or command == "HELP" or command == "-h":
 		ret = "help"
 		return ret
+	elif command == "com" or command == "compile" or command == "COM": 
+		return "com"
 	else:
 		print("Unkown Subcommand")
-		print("Subcommands are :-")
-		print("    run    <filepath>" + "                  - run will interprete the program.")
-		print("    help" + "                               - help will print this help screen")
-		print(Fore.RED + "exited abnormally with code 1")
+		usage()
 
-def usage(white_help=True):
-	if white_help:
-		print(Fore.WHITE + "Subcommands are :-") 
-		print(Fore.WHITE + "    run    <filepath>" + "			   - run will interprete the program.")
-		print(Fore.WHITE + "    help" + "                   	           - help will print this help screen")
-	else: 
-		print("Subcommands are :-")
-		print("    run    <filepath>" + "                      - run will interprete the program.")
-		print("    help" + "                                   - help will print this help screen")
 
 def throw_error(error, code):
 	print(Fore.RED + "ERROR: " + error)
@@ -52,7 +54,6 @@ def run():
 		if struct == "run":	
 			data = argv[2]
 			text = "run(\""+data+"\")"
-			stdlib.com_run(data)
 			result, error = stdlib.run('<stdin>', text)
 			if error:
 				print(error.as_string())
@@ -60,7 +61,7 @@ def run():
 				if len(result.elements) == 1:
 					print(repr(result.elements[0]))
 				else:
-					print(repr(result)) #TODO: get basepath and feed it to com_run() function 
+					print(repr(result)) 
 	except Exception as e:	
 		if str(e) == "list index out of range":
 			if argv[2] == data:
@@ -71,7 +72,10 @@ def run():
 			print("\n")
 			print(e)
 			exit(1)
-	if struct == "help":
+	if struct == "com":
+		data = argv[2]
+		stdlib.com_run(data) 
+	elif struct == "help":
 		usage(False)
 		exit(0)
 

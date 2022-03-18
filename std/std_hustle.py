@@ -2577,7 +2577,7 @@ def generate_nasm_x84_assembly(basename, hustle_ext, basepath):
         o.write("           xor       rdi, rdi      ; exit code 0\n")
         o.write("           syscall                 ; invoke operating system to exit\n")
         o.write("           section   .data\n")
-        o.write('message:  db        "%s", 10      ; note the newline at the end\n' % str(program[1]))
+        o.write('message:  db        %s, 10      ; note the newline at the end\n' % str(program[1]))
       else:
         print("ERROR: Invalid Syntax, Unknown Word: " + program[0])
         exit(1)
