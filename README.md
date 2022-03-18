@@ -8,7 +8,7 @@ I WILL ADD THE REST OF THE FEATURES FOR COMPILATION MODE AS TIME GOES ON
 
 # Installation
 ```console
-$ ./install.sh 
+$ sudo ./install.sh 
 ```
 give your password, and you are done
 
@@ -17,13 +17,13 @@ give your password, and you are done
 ```console
 $ ./hustle.py help
 $ ./hustle.py run examples/fizzbuzz.hsle
+$ ./hustle.py com check_asm/foo.hsle (compile mode is still not finished)
 ```
 
 # MileStones
 - [x] Turing-Complete
 - [ ] Compiled into intermidiate representation (IN PROGRESS)
-- [ ] memory allocation
+- [ ] Memory Allocation
 - [ ] Stactic Type Checking
-
-# Goals 
-- [ ] More Faster then this language:- https://github.com/iacobucci/stupid_language
+- [ ] Optimized 
+- [ ] Cross Platform

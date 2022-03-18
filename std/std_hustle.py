@@ -2552,43 +2552,84 @@ def generate_output(basepath, hustle_ext):
   cmd_echoed(["nasm", "-felf64", basepath + ".asm"])
   cmd_echoed(["ld", "-o", basepath, basepath + ".o"])
 
-def generate_nasm_x84_assembly(basename, hustle_ext, basepath):
-  if basepath.endswith(hustle_ext):
-      basepath = basepath[:-len(hustle_ext)]
-  #TODO: add support for string litterals in compilation
-  with open(basename, "r") as ip:
-    list_program = ip.read()
-    program = list_program.split()
-    ip.close()
-  with open(basepath+".asm", "w") as o:
-    if len(program) > 0: 
-      o.write("          global    _start\n\n")
-      o.write("          section   .text\n")
-      o.write("_start:\n")
-      # TODO: check for string litterals when compiling printh intrinsic
-      # TODO: make the interpreted and the compiled version's have same syntax.
-      if program[0] == "printh":
-        o.write("           mov       rax, 1        ; system call for write\n")  
-        o.write("           mov       rdi, 1        ; file handle 1 is stdout\n")
-        o.write("           mov       rsi, message  ; address of string to output\n")
-        o.write("           mov       rdx, 13       ; number of bytes\n")
-        o.write("           syscall                 ; invoke operating system to do the write\n")
-        o.write("           mov       rax, 60       ; system call for exit\n")
-        o.write("           xor       rdi, rdi      ; exit code 0\n")
-        o.write("           syscall                 ; invoke operating system to exit\n")
-        o.write("           section   .data\n")
-        o.write('message:  db        %s, 10      ; note the newline at the end\n' % str(program[1]))
-      else:
-        print("ERROR: Invalid Syntax, Unknown Word: " + program[0])
-        exit(1)
-  generate_output(basepath, hustle_ext)
+class ComParser:
+  def __init__(self, tokens):
+    self.tokens = tokens
+    self.tok_idx = -1
+    self.advance()
 
-def com_run(data):
+  def advance(self):
+    self.tok_idx += 1
+    self.update_current_tok()
+    return self.current_tok
+
+  def reverse(self, amount=1):
+    self.tok_idx -= amount
+    self.update_current_tok()
+    return self.current_tok
+
+  def update_current_tok(self):
+    if self.tok_idx >= 0 and self.tok_idx < len(self.tokens):
+      self.current_tok = self.tokens[self.tok_idx]
+
+# COMPILE MODE IS STILL IN PROGRESS AND NOT COMPLETE
+class CompileCode:
+  #TODO: make a new parser and lexer for compilation of code
+  def read_program(self, basename):
+    with open(basename, "r") as ip:
+      # for now use a splited list, after we complete the parser we can use just .readlines 
+      program = ip.read()
+      program = program.split()
+      ip.close() 
+    return program
+
+  def generate_nasm_x84_assembly(self, basename, hustle_ext, basepath, tokens):
+    basepath = self.endswith(hustle_ext, basepath)
+    program = self.read_program(basename)
+    parser = ComParser(tokens)
+
+    #TODO: add support for string litterals in compilation
+    with open(basepath+".asm", "w") as o:
+      if len(program) > 0: 
+        o.write("          global    _start\n\n")
+        o.write("          section   .text\n")
+        o.write("_start:\n")
+        # TODO: check for string litterals when compiling printh intrinsic
+        # TODO: make the interpreted and the compiled version's have same syntax.
+        # TODO: use the parser for the checking of tokens instead of a list
+        if program[0] == "printh":
+          o.write("           mov       rax, 1        ; system call for write\n")  
+          o.write("           mov       rdi, 1        ; file handle 1 is stdout\n")
+          o.write("           mov       rsi, message  ; address of string to output\n")
+          # TODO: should have more (dynamic) memory for the allocation of bytes
+          o.write("           mov       rdx, 13       ; number of bytes\n") 
+          o.write("           syscall                 ; invoke operating system to do the write\n")
+          o.write("           mov       rax, 60       ; system call for exit\n")
+          o.write("           xor       rdi, rdi      ; exit code 0\n")
+          o.write("           syscall                 ; invoke operating system to exit\n")
+          o.write("           section   .data\n")
+          o.write('message:  db        %s, 10      ; note the newline at the end\n' % str(program[1]))
+        else:
+          print("ERROR: Invalid Syntax, Unknown Word: " + program[0])
+          exit(1)
+    generate_output(basepath, hustle_ext)
+  
+  def endswith(self, hustle_ext, basepath):
+    if basepath.endswith(hustle_ext):
+        basepath = basepath[:-len(hustle_ext)]
+    return basepath
+
+def com_run(fn, text, data):
   basename = path.basename(data)
   basedir = path.dirname(data)
   basepath = path.join(basedir, basename)
 
-  generate_nasm_x84_assembly(basepath, ".hsle", basepath)
+  lexer = Lexer(fn, text)
+  tokens, error = lexer.make_tokens()
+  if error: return None, error
+
+  compiler = CompileCode()
+  compiler.generate_nasm_x84_assembly(basepath, ".hsle", basepath, tokens)
 
 def run(fn, text):
   lexer = Lexer(fn, text)
