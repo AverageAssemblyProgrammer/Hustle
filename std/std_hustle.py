@@ -7,6 +7,7 @@
 # AFTER I AM DONE WITH THAT I WILL BE MAKING THE COMPILED VERSION OF THE LANGUAGE WITHOUT ANY OTHER GUY'S HELP
 
 # codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
+from pyparsing import Keyword
 from pyrfc3339 import generate
 from arrow_strings.strings_with_arrows import *
 from keywords.keywords import *
@@ -2551,32 +2552,43 @@ def generate_output(basepath, hustle_ext):
   cmd_echoed(["nasm", "-felf64", basepath + ".asm"])
   cmd_echoed(["ld", "-o", basepath, basepath + ".o"])
 
-def generate_nasm_x84_assembly(basename, hustle_ext, program, basepath):
+def generate_nasm_x84_assembly(basename, hustle_ext, basepath):
   if basepath.endswith(hustle_ext):
       basepath = basepath[:-len(hustle_ext)]
-  #TODO: generate the assembly as the instruction from the hustle program 
+  #TODO: add support for string litterals in compilation
+  with open(basename, "r") as ip:
+    list_program = ip.read()
+    program = list_program.split()
+    ip.close()
   with open(basepath+".asm", "w") as o:
-    # generate the assembly for the program conditionaly
-    # for now lets write a hello world program 
-    o.write("          global    _start\n")
-    o.write("          section   .text\n")
-    o.write("_start:   mov       rax, 1                  ; system call for write\n")
-    o.write("          mov       rdi, 1                  ; file handle 1 is stdout\n")
-    o.write("          mov       rsi, message            ; address of string to output\n")
-    o.write("          mov       rdx, 13                 ; number of bytes\n")
-    o.write("          syscall                           ; invoke operating system to do the write\n")
-    o.write("          mov       rax, 60                 ; system call for exit\n")
-    o.write("          xor       rdi, rdi                ; exit code 0\n")
-    o.write("          syscall                           ; invoke operating system to exit\n")
-    o.write("          section   .data\n")
-    o.write('message:  db        "Hello, World", 10      ; note the newline at the end\n')
+    if len(program) > 0: 
+      o.write("          global    _start\n\n")
+      o.write("          section   .text\n")
+      o.write("_start:\n")
+      # TODO: check for string litterals when compiling printh intrinsic
+      # TODO: make the interpreted and the compiled version's have same syntax.
+      if program[0] == "printh":
+        o.write("           mov       rax, 1        ; system call for write\n")  
+        o.write("           mov       rdi, 1        ; file handle 1 is stdout\n")
+        o.write("           mov       rsi, message  ; address of string to output\n")
+        o.write("           mov       rdx, 13       ; number of bytes\n")
+        o.write("           syscall                 ; invoke operating system to do the write\n")
+        o.write("           mov       rax, 60       ; system call for exit\n")
+        o.write("           xor       rdi, rdi      ; exit code 0\n")
+        o.write("           syscall                 ; invoke operating system to exit\n")
+        o.write("           section   .data\n")
+        o.write('message:  db        "%s", 10      ; note the newline at the end\n' % str(program[1]))
+      else:
+        print("ERROR: Invalid Syntax, Unknown Word: " + program[0])
+        exit(1)
   generate_output(basepath, hustle_ext)
 
-def com_run(data, prog):
+def com_run(data):
   basename = path.basename(data)
   basedir = path.dirname(data)
   basepath = path.join(basedir, basename)
-  generate_nasm_x84_assembly(basename, ".hsle", prog, basepath)
+
+  generate_nasm_x84_assembly(basepath, ".hsle", basepath)
 
 def run(fn, text):
   lexer = Lexer(fn, text)

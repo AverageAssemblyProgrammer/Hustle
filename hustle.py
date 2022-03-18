@@ -2,7 +2,7 @@
 import os
 from os import *
 from sys import *
-import std.Interpreter as stdlib
+import std.std_hustle as stdlib
 from colorama import Fore
 
 # MIT License 
@@ -52,7 +52,7 @@ def run():
 		if struct == "run":	
 			data = argv[2]
 			text = "run(\""+data+"\")"
-			stdlib.com_run(data, text)
+			stdlib.com_run(data)
 			result, error = stdlib.run('<stdin>', text)
 			if error:
 				print(error.as_string())

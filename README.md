@@ -1,11 +1,10 @@
 # Hustle
 
 WARNING!! HUSTLE IS A EXPERIMENTAL LANGUAGE. IT IS NOT COMPLETE.
+MANY THINGS HAVE STOPED WORKING WHILE I AM ADDING COMPILATION HUSTLE
+NO PROGRAMS THAT WORKED IN THE PAST WILL WORK NOW, 0 PERCENT BACKWARDS COMPATIBILITY FOR NOW
+I WILL ADD THE REST OF THE FEATURES FOR COMPILATION MODE AS TIME GOES ON 
 
-THIS ALL IS JUST FOR ME TO UNDERSTAND HOW A PROGRAMMING LANGUAGE MOSTLY WORKS 
-I HAVE NOT DONE ANY WORK FOR THE LEXING AND PARSING LITTERALLY ALL OF THE WORK IS FROM CODEPULSE'S TUTORIAL ON HOW TO MAKE A PROGRAMMING LANGUAGE 
-
-codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
 
 # Installation
 ```console
@@ -22,7 +21,7 @@ $ ./hustle.py run examples/fizzbuzz.hsle
 
 # MileStones
 - [x] Turing-Complete
-- [ ] Compiled into intermidiate representation
+- [ ] Compiled into intermidiate representation (IN PROGRESS)
 - [ ] memory allocation
 - [ ] Stactic Type Checking
 
