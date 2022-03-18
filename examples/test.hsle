@@ -1,5 +1,1 @@
-include("stdlib") return 
-
-var my_list = ["#", "#", "#", "#", "#", "#", "#", "#", "#", "*", "#"]
-var sh = shuffle(my_list)
-printh(sh)
+return 0

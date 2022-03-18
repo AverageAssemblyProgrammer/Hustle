@@ -1,26 +1,78 @@
 include("all") return 
 include("examples-not-tests/frame-data.hsle") return 
+# THIS IS NOT COMPLETED YET
 
-func animation(name, secuence, times, seconds) 
-    for i = 0 to times then 
-        for s = 0 to strlen(secuence) then 
-            sys("clear")
-            var st = s
-            var vs = take(secuence, st)
-            var ns = take(name, int(vs))
-            printh(ns)
-            tsleep(seconds)
-        end
+
+func handle_frames(frame_count)
+    # this function will get us the sequence in which we print the frames
+    var char = ""
+    for i = 0 to frame_count then
+        # [1, 2, 3, 4, 5, 6, 7, 8, 9] the len should be 9 
+	var char = char + str(i)
+    end
+    return char
+    #printh(char)
+end 
+
+func output_frames(data, char)
+    var num = []
+    # this function will get the information of what we print
+    for i = 0 to data then
+	#append(num, i)
+	for q = 0 to len(frame_count) then
+	    var st = pop(frame_count, 0)
+	    append(num,st)
+	end 
+    end
+    #printh(num)
+    return num
+end 
+
+func get_len()
+    var lf = []
+    for i = 0 to len(frame_count) then
+    	append(lf,i)
+    end	
+    return len(lf)
+end 
+
+func get_interval()
+    var ctime = argv(1) # todo: check if there is no arguement provided and if so return a constant set time interval that is 0.3
+    return ctime
+end 
+
+func animation(name, secuence, times, seconds)
+    if len(name) < 10 then
+       for i = 0 to times then 
+            for s = 0 to strlen(secuence) then 
+                sys("clear")
+		var st = s
+            	var vs = take(secuence, st)
+            	var ns = take(name, int(vs))
+                printh(ns)
+		tsleep(seconds)
+            end
+    	end
+    else
+        printh("frame buffer overflow, maximum frame input should be lower then 10")
+	exit(  "maximum frame buffer limit succeeded: " + str(len(name)))
     end 
 end
 
-func handle_frames(fc)
-     
-end
-
 func main()
-    var hf = handle_frames(20)
-    
-end
+    #printh("remember to give a arguement that is the time interval between each frame or the program won't work")
+    var times = get_len()
+    var char = handle_frames(times)
+    var time_interval = get_interval()
+    # there is a frame cap of 9 frames, cause of the way how the animator was made
+    var frame = output_frames(times, char) #frame function will pop the whole list to get the data so always put this function at then end
+    # for debugging perposes
+    # printh(str(frame) + ": frame")
+    # printh(str(char) + ": char") 
+    # printh(str(times) + ": times")
+    # printh(str(time_interval) + ": time_interval")
+    animation(frame, char, times, time_interval)
+    #animation(frame, char, 2, 0.3)
+end 
 
 main()

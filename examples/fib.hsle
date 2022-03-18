@@ -1,27 +1,18 @@
-#!/usr/bin/hustle/hustle.py run
-include("all") return 
-#var nt = input_int()
+# create Fibonacci sequence
 var nt = 150
 
+var count = 0
 var n1 = 0
 var n2 = 1
-var count = 0
 
-func main() 
-    if nt <= 0 then 
-        printh("Please enter a positive integer")
-    elif nt == 1 then 
+func fib()
+    while count < nt then 
         printh(n1)
-    else
-        printh("Fibonacci sequence:")
-        while count < nt then 
-            printh(n1)
-            var nth = n1 + n2
-            var n1 = n2
-            var n2 = nth
-            var count = count + 1
-        end      
-    end
+	    var nth = n1 + n2
+    	var n1 = n2 
+        var n2 = nth
+        var count = count + 1
+    end  
 end 
 
-main()
+fib()

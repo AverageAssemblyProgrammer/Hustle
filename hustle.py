@@ -12,13 +12,6 @@ if os.name == "nt":
     # you can bypass this by just deleting this if statement and then make it compatable with windows, well it is quite compatable just need to change few things
     print("this file is not windows compatable yet")
 
-def open_file(filename):
-	if filename.endswith('.hsle'):
-		data = filename
-		return data
-	else:
-		data = filename
-		return data 	
 
 def check_subcommand(command):
 	if command == "run" or command == "Run" or command == "RUN":
@@ -30,7 +23,6 @@ def check_subcommand(command):
 		print("Unkown Subcommand")
 		print("Subcommands are :-")
 		print("    run    <filepath>" + "                  - run will interprete the program.")
-		print("    #!(fullpath_to_code_runner) runme " + " - will run itself, so you can make the file a exe")
 		print("    help" + "                               - help will print this help screen")
 		print(Fore.RED + "exited abnormally with code 1")
 
@@ -38,12 +30,10 @@ def usage(white_help=True):
 	if white_help:
 		print(Fore.WHITE + "Subcommands are :-") 
 		print(Fore.WHITE + "    run    <filepath>" + "			   - run will interprete the program.")
-		print("    #!(fullpath_to_code_runner) runme " + "     - will run itself, so you can make the file a exe")
 		print(Fore.WHITE + "    help" + "                   	           - help will print this help screen")
 	else: 
 		print("Subcommands are :-")
 		print("    run    <filepath>" + "                      - run will interprete the program.")
-		print("    #!(fullpath_to_code_runner) runme " + "     - will run itself, so you can make the file a exe")
 		print("    help" + "                                   - help will print this help screen")
 
 def throw_error(error, code):
@@ -56,20 +46,21 @@ def run():
 		subcommand = argv[1]
 		struct = check_subcommand(subcommand)
 	except:
-		# TODO: unhardcode this error
+		# TODO: unhardcode this error 
 		throw_error("No Subcomand Provided", 1)
 	try:
 		if struct == "run":	
-			data = open_file(argv[2])
+			data = argv[2]
 			text = "run(\""+data+"\")"
-			result, error = stdlib.run('<stdin>',text)
+			stdlib.com_run(data, text)
+			result, error = stdlib.run('<stdin>', text)
 			if error:
 				print(error.as_string())
 			elif result:
 				if len(result.elements) == 1:
 					print(repr(result.elements[0]))
 				else:
-					print(repr(result))
+					print(repr(result)) #TODO: get basepath and feed it to com_run() function 
 	except Exception as e:	
 		if str(e) == "list index out of range":
 			if argv[2] == data:
@@ -84,4 +75,5 @@ def run():
 		usage(False)
 		exit(0)
 
-run() 
+if __name__ in '__main__':
+	run()

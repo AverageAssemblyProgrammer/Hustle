@@ -2,10 +2,7 @@
 :b stdin 0
 
 :i returncode 0
-:b stdout 2533
-
-
-Fibonacci sequence:
+:b stdout 2511
 0
 1
 1

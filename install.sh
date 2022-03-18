@@ -33,5 +33,5 @@ else
        printf "[CMD] sudo cp ops -r /usr/bin/hustle \n"
        sudo cp ops -r /usr/bin/hustle
 
-       printf "\nInstallation Complete, You can now run hustle files as executables"
+       printf "\nInstallation Complete, You can now run hustle files as executables using a never changing directory"
 fi

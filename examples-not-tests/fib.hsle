@@ -1,0 +1,15 @@
+var n1 = 0
+var n2 = 1
+
+# this program will calculate the fibonacci sequence for ever.
+
+func main() 
+    while (1==1) then
+	printh(n1)
+	var nth = n1 + n2
+    	var n1 = n2 
+        var n2 = nth
+    end 
+end 
+
+main()

@@ -7,6 +7,7 @@
 # AFTER I AM DONE WITH THAT I WILL BE MAKING THE COMPILED VERSION OF THE LANGUAGE WITHOUT ANY OTHER GUY'S HELP
 
 # codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
+from pyrfc3339 import generate
 from arrow_strings.strings_with_arrows import *
 from keywords.keywords import *
 from ops.ops import *
@@ -17,6 +18,9 @@ from sys import *
 import sys
 import time 
 import random
+import subprocess
+import shlex
+from os import path
 
 # TODO: implement game of life in hustle
 
@@ -2536,6 +2540,44 @@ global_symbol_table.set("entend", BuiltInFunction.extend)
 global_symbol_table.set("len", BuiltInFunction.len)
 global_symbol_table.set("run", BuiltInFunction.run)
 
+def cmd_echoed(cmd):
+    print("[CMD] %s" % " ".join(map(shlex.quote, cmd)))
+    subprocess.call(cmd)
+
+def generate_output(basepath, hustle_ext):
+  if basepath.endswith(hustle_ext):
+      basepath = basepath[:-len(hustle_ext)]
+  print("[INFO] Generating %s" % (basepath + ".asm"))
+  cmd_echoed(["nasm", "-felf64", basepath + ".asm"])
+  cmd_echoed(["ld", "-o", basepath, basepath + ".o"])
+
+def generate_nasm_x84_assembly(basename, hustle_ext, program, basepath):
+  if basepath.endswith(hustle_ext):
+      basepath = basepath[:-len(hustle_ext)]
+  #TODO: generate the assembly as the instruction from the hustle program 
+  with open(basepath+".asm", "w") as o:
+    # generate the assembly for the program conditionaly
+    # for now lets write a hello world program 
+    o.write("          global    _start\n")
+    o.write("          section   .text\n")
+    o.write("_start:   mov       rax, 1                  ; system call for write\n")
+    o.write("          mov       rdi, 1                  ; file handle 1 is stdout\n")
+    o.write("          mov       rsi, message            ; address of string to output\n")
+    o.write("          mov       rdx, 13                 ; number of bytes\n")
+    o.write("          syscall                           ; invoke operating system to do the write\n")
+    o.write("          mov       rax, 60                 ; system call for exit\n")
+    o.write("          xor       rdi, rdi                ; exit code 0\n")
+    o.write("          syscall                           ; invoke operating system to exit\n")
+    o.write("          section   .data\n")
+    o.write('message:  db        "Hello, World", 10      ; note the newline at the end\n')
+  generate_output(basepath, hustle_ext)
+
+def com_run(data, prog):
+  basename = path.basename(data)
+  basedir = path.dirname(data)
+  basepath = path.join(basedir, basename)
+  generate_nasm_x84_assembly(basename, ".hsle", prog, basepath)
+
 def run(fn, text):
   lexer = Lexer(fn, text)
   tokens, error = lexer.make_tokens()
@@ -2790,31 +2832,29 @@ class Interpreter:
       else:
         print("file does not have .hsle extension")
         exit(1)
-    def out_run():
-      if str(include_var) == "all":
-        data = open_file(modules["@"])
-      elif str(include_var) == "stdlib":
-        data = open_file(modules["@"])
-      else: 
-        try: 
-          data = open_file(str(include_var)) 
-        except:
-          print("RUNTIME ERROR: could not find module")
-          print("please give relative path or the full path to the module")
-          sys.exit("File Not Found: " + str(include_var))
-          
-      text = "run(\""+data+"\")"
-      result, error = run('<stdin>',text)
 
-      if error:
-        print(error.as_string())
-      elif result:
-        if len(result.elements) == 1:
-          print(repr(result.elements[0]))
-        else:
-          print(repr(result))
+    if str(include_var) == "all":
+      data = open_file(modules["@"])
+    elif str(include_var) == "stdlib":
+      data = open_file(modules["@"])
+    else: 
+      try: 
+        data = open_file(str(include_var)) 
+      except:
+        print("RUNTIME ERROR: could not find module")
+        print("please give relative path or the full path to the module")
+        sys.exit("File Not Found: " + str(include_var))
+        
+    text = "run(\""+data+"\")"
+    result, error = run('<stdin>',text)
 
-    out_run()
+    if error:
+      print(error.as_string())
+    elif result:
+      if len(result.elements) == 1:
+        print(repr(result.elements[0]))
+      else:
+        print(repr(result))
           
     return res.success(
       Number.null if node.should_return_null else
@@ -2888,7 +2928,6 @@ class Interpreter:
     str_tok = res.register(self.visit(node.string_tok, context))
     if res.should_return(): return res
 
-    # try to take the length of the string that is str_tok and if it fails print the exception 
     try:
       length = len(str(str_tok))
     except Exception as e:
