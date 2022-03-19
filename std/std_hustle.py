@@ -2565,10 +2565,11 @@ class CompileCode:
     basepath = self.endswith1(hustle_ext, basepath)
     program = self.read_program(basename)
     with open(basepath+".asm", "w") as o:
+      # TODO: unhardcode this
       o.write("global _start\n")
       o.write("section .text\n")
       o.write("_start:\n")
-    
+
       toks = self.lex(program)
       self.parse(toks, o)
 
@@ -2592,7 +2593,8 @@ class CompileCode:
         asm.write(f"message: db     {message}, 10     ; note the newline at the end\n")
         i += 2
     #TODO: implement more intrinsics and builtInFunctions (if-else logic)
-      
+
+  # THE COMPILER MODE OF THIS LEXER HAS NO SUPPORT FOR COMMENTS YET
   def lex(self, data):
     tok = ""
     data = list(data)
