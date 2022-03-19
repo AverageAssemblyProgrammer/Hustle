@@ -1,1 +1,1 @@
-printh "Hello_World"
+printh("for now this compiler only supports 1 printh intrinsic")

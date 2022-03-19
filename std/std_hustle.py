@@ -7,8 +7,6 @@
 # AFTER I AM DONE WITH THAT I WILL BE MAKING THE COMPILED VERSION OF THE LANGUAGE WITHOUT ANY OTHER GUY'S HELP
 
 # codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
-from pyparsing import Keyword
-from pyrfc3339 import generate
 from arrow_strings.strings_with_arrows import *
 from keywords.keywords import *
 from ops.ops import *
@@ -99,7 +97,6 @@ class Position:
 
   def copy(self):
     return Position(self.idx, self.ln, self.col, self.fn, self.ftxt)
-
 
 
 class Token:
@@ -2552,84 +2549,126 @@ def generate_output(basepath, hustle_ext):
   cmd_echoed(["nasm", "-felf64", basepath + ".asm"])
   cmd_echoed(["ld", "-o", basepath, basepath + ".o"])
 
-class ComParser:
-  def __init__(self, tokens):
-    self.tokens = tokens
-    self.tok_idx = -1
-    self.advance()
-
-  def advance(self):
-    self.tok_idx += 1
-    self.update_current_tok()
-    return self.current_tok
-
-  def reverse(self, amount=1):
-    self.tok_idx -= amount
-    self.update_current_tok()
-    return self.current_tok
-
-  def update_current_tok(self):
-    if self.tok_idx >= 0 and self.tok_idx < len(self.tokens):
-      self.current_tok = self.tokens[self.tok_idx]
-
-# COMPILE MODE IS STILL IN PROGRESS AND NOT COMPLETE
+tokens = []
+# COMPILATION MODE IS STILL IN PROGRESS AND NOT COMPLETE (USE IT AT YOUR OWN RISK)
 class CompileCode:
-  #TODO: make a new parser and lexer for compilation of code
   def read_program(self, basename):
     with open(basename, "r") as ip:
-      # for now use a splited list, after we complete the parser we can use just .readlines 
       program = ip.read()
-      program = program.split()
       ip.close() 
     return program
 
+  #TODO: check for all intrintics and builtInFuctions (if-else logic)
+  #TODO: add support for string litterals in compilation
+  #TODO: make a new parser and lexer for compilation of code
   def generate_nasm_x84_assembly(self, basename, hustle_ext, basepath, tokens):
-    basepath = self.endswith(hustle_ext, basepath)
+    basepath = self.endswith1(hustle_ext, basepath)
     program = self.read_program(basename)
-    parser = ComParser(tokens)
-
-    #TODO: add support for string litterals in compilation
     with open(basepath+".asm", "w") as o:
-      if len(program) > 0: 
-        o.write("          global    _start\n\n")
-        o.write("          section   .text\n")
-        o.write("_start:\n")
-        # TODO: check for string litterals when compiling printh intrinsic
-        # TODO: make the interpreted and the compiled version's have same syntax.
-        # TODO: use the parser for the checking of tokens instead of a list
-        if program[0] == "printh":
-          o.write("           mov       rax, 1        ; system call for write\n")  
-          o.write("           mov       rdi, 1        ; file handle 1 is stdout\n")
-          o.write("           mov       rsi, message  ; address of string to output\n")
-          # TODO: should have more (dynamic) memory for the allocation of bytes
-          o.write("           mov       rdx, 13       ; number of bytes\n") 
-          o.write("           syscall                 ; invoke operating system to do the write\n")
-          o.write("           mov       rax, 60       ; system call for exit\n")
-          o.write("           xor       rdi, rdi      ; exit code 0\n")
-          o.write("           syscall                 ; invoke operating system to exit\n")
-          o.write("           section   .data\n")
-          o.write('message:  db        %s, 10      ; note the newline at the end\n' % str(program[1]))
-        else:
-          print("ERROR: Invalid Syntax, Unknown Word: " + program[0])
-          exit(1)
+      o.write("global _start\n")
+      o.write("section .text\n")
+      o.write("_start:\n")
+    
+      toks = self.lex(program)
+      self.parse(toks, o)
+
     generate_output(basepath, hustle_ext)
+
+  def parse(self, toks, asm):
+    i = 0
+    while(i < len(toks)):
+      if toks[i] + " " + toks[i+1][0:6] == "PRINTH STRING":
+        # for now the compiler only supports 1 printh intrinsic
+        message = toks[i+1][7:]  
+        asm.write( "    mov    rax, 1                 ; sys call for write\n")
+        asm.write( "    mov    rdi, 1                 ; file handle 1 is stdout\n")
+        asm.write( "    mov    rsi, message           ; ardress of string to output\n")
+        asm.write(f"    mov    rdx, {len(message)}    ; numbers of bytes for the memory of the string\n")
+        asm.write( "    syscall                       ; invoke the os to do the write\n")
+        asm.write( "    mov    rax, 60                ; system call for exit\n")
+        asm.write( "    xor    rdi, rdi               ; exit code 0\n")
+        asm.write( "    syscall\n")
+        asm.write( "    section     .data\n")
+        asm.write(f"message: db     {message}, 10     ; note the newline at the end\n")
+        i += 2
+    #TODO: implement more intrinsics and builtInFunctions (if-else logic)
+      
+  def lex(self, data):
+    tok = ""
+    data = list(data)
+    string = ""
+    state = 0
+    eof = 0
+    for char in data:
+      eof += 1
+      tok += char
+      if tok == " ":
+        if state == 0:
+          tok = ""
+        else:
+          tok = " "
+      elif tok == "\n":
+        tok = ""
+      elif tok == "printh":
+        self.printh_intrinsic()
+        tok = ""
+      elif tok == "(":
+        # TODO: implement left parenthesis
+        tok = ""
+      elif tok == ")":
+        # TODO: implement right parenthesis
+        tok = ""
+      elif tok == "\"":
+        if state == 0:
+          state = 1
+        elif state == 1:
+          self.makeString_intrinsic(string)
+          string = ""
+          state = 0
+          tok = ""
+      else:
+        if eof == len(data):
+          print("ERROR: unknown word: %s" % tok)
+          exit(1)
+          # for now throw error, but later we can implement a make identifier function 
+      if state == 1:
+        string += tok
+        tok = ""
+    return tokens 
+    #print(tokens)
   
-  def endswith(self, hustle_ext, basepath):
+  
+  def makeString_intrinsic(self, string):
+    tokens.append("STRING:" + string + "\"")
+
+  def printh_intrinsic(self):
+    tokens.append("PRINTH")
+
+  def endswith1(self, hustle_ext, basepath):
     if basepath.endswith(hustle_ext):
         basepath = basepath[:-len(hustle_ext)]
     return basepath
 
+  # TODO: make functions for almost all intrinsics and builtInFunctions    
+
 def com_run(fn, text, data):
+  lexer = Lexer(fn, text)
+  tokens, error1 = lexer.make_tokens()
+  if error1: return None, error1
+
+  parser = Parser(tokens)
+  ast = parser.parse()
+  if ast.error: return None, ast.error
+
   basename = path.basename(data)
   basedir = path.dirname(data)
   basepath = path.join(basedir, basename)
 
-  lexer = Lexer(fn, text)
-  tokens, error = lexer.make_tokens()
-  if error: return None, error
-
   compiler = CompileCode()
-  compiler.generate_nasm_x84_assembly(basepath, ".hsle", basepath, tokens)
+  error = compiler.generate_nasm_x84_assembly(basepath, ".hsle", basepath, tokens)
+
+  if error:
+    print(error)
 
 def run(fn, text):
   lexer = Lexer(fn, text)

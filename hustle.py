@@ -75,9 +75,8 @@ def run():
 	# COMPILE MODE IS STILL IN PROGRESS AND NOT COMPLETE
 	if struct == "com":
 		data = argv[2]
-		text = "run(\""+data+"\")"
+		text = "com_run(\""+data+"\")"
 		stdlib.com_run('<stdin>', text, data) 
-		
 	elif struct == "help":
 		usage(False)
 		exit(0)

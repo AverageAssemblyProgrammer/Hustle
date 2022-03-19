@@ -2,8 +2,8 @@ include("stdlib") return
 
 func main(stins)
     var tmp = stins
-    var string_len = lenstr(tmp)
-    var fl = 
+    var string_len = strlen(tmp)
+    var fl = string_len
     return fl
 end 
 
