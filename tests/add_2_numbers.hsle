@@ -1,4 +1,1 @@
-var a = 5
-var b = 1 
-
-printh(a + b)
+printh(5 + 1)

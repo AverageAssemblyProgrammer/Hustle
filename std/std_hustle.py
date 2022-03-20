@@ -2549,12 +2549,16 @@ def generate_output(basepath, hustle_ext):
   cmd_echoed(["nasm", "-felf64", basepath + ".asm"])
   cmd_echoed(["ld", "-o", basepath, basepath + ".o"])
 
+# globals lists
 tokens = []
+num_stack = []
+
 # COMPILATION MODE IS STILL IN PROGRESS AND NOT COMPLETE (USE IT AT YOUR OWN RISK)
 class CompileCode:
   def read_program(self, basename):
     with open(basename, "r") as ip:
       program = ip.read()
+      program += "<EOF>"
       ip.close() 
     return program
 
@@ -2577,29 +2581,79 @@ class CompileCode:
 
   def parse(self, toks, asm):
     i = 0
-    while(i < len(toks)):
-      if toks[i] + " " + toks[i+1][0:6] == "PRINTH STRING":
-        # for now the compiler only supports 1 printh intrinsic
-        message = toks[i+1][7:]  
-        asm.write( "    mov    rax, 1                 ; sys call for write\n")
-        asm.write( "    mov    rdi, 1                 ; file handle 1 is stdout\n")
-        asm.write( "    mov    rsi, message           ; ardress of string to output\n")
-        asm.write(f"    mov    rdx, {len(message)}    ; numbers of bytes for the memory of the string\n")
-        asm.write( "    syscall                       ; invoke the os to do the write\n")
-        asm.write( "    mov    rax, 60                ; system call for exit\n")
-        asm.write( "    xor    rdi, rdi               ; exit code 0\n")
-        asm.write( "    syscall\n")
-        asm.write( "    section     .data\n")
-        asm.write(f"message: db     {message}, 10     ; note the newline at the end\n")
-        i += 2
     #TODO: implement more intrinsics and builtInFunctions (if-else logic)
+    while(i < len(toks)):
+      # TODO: add number evaluation
+      try:
+        if toks[i] + " " + toks[i+1][0:6] == "PRINTH STRING" or toks[i] + " " + toks[i+1][0:3] == "PRINTH NUM" or toks[i] + " " + toks[i+1][0:4] == "PRINTH EXPR":
+          # for now the compiler only supports 1 printh intrinsic 
+          if toks[i+1][0:6] == "STRING":
+            message = toks[i+1][7:]  
+            message = message
+            asm.write( "    mov    rax, 1                     ; sys call for write\n")
+            asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
+            asm.write( "    mov    rsi, message               ; ardress of string to output\n")
+            asm.write(f"    mov    rdx, {len(message)}                    ; numbers of bytes for the memory of the string\n")
+            asm.write( "    syscall                           ; invoke the os to do the write\n")
+            asm.write( "    mov    rax, 60                    ; system call for exit\n") 
+            asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
+            # after implementation of almost all the intrinsics, this exit syscall will be at the end of the assembly instructions
+            asm.write( "    syscall\n")
+            asm.write( "    section     .data\n")
+            asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
 
+          elif toks[i+1][0:3] == "NUM":
+            message = toks[i+1][4:]  
+            message = "\""+message+"\""
+            asm.write( "    mov    rax, 1                     ; sys call for write\n")
+            asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
+            asm.write( "    mov    rsi, message               ; ardress of string to output\n")
+            asm.write(f"    mov    rdx, {len(message)}                    ; numbers of bytes for the memory of the string\n")
+            asm.write( "    syscall                           ; invoke the os to do the write\n")
+            asm.write( "    mov    rax, 60                    ; system call for exit\n") 
+            asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
+            # after implementation of almost all the intrinsics, this exit syscall will be at the end of the assembly instructions
+            asm.write( "    syscall\n")
+            asm.write( "    section     .data\n")
+            asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
+
+          elif toks[i+1][0:4] == "EXPR":
+            message = toks[i+1][5:]  
+            message = self.evalExpr(message)
+            message = ("\""+message+"\"")
+            asm.write( "    mov    rax, 1                     ; sys call for write\n")
+            asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
+            asm.write( "    mov    rsi, message               ; ardress of string to output\n")
+            asm.write(f"    mov    rdx, {len(message)}                    ; numbers of bytes for the memory of the string\n")
+            asm.write( "    syscall                           ; invoke the os to do the write\n")
+            asm.write( "    mov    rax, 60                    ; system call for exit\n") 
+            asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
+            # after implementation of almost all the intrinsics, this exit syscall will be at the end of the assembly instructions
+            asm.write( "    syscall\n")
+            asm.write( "    section     .data\n")
+            asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
+          i += 2
+        else:
+          # it should never reach this part as the lexer should have already filtered out all the invalid tokens
+          print("ERROR: Unknown intrinsic or BuiltInFunction")
+          exit(1)
+      except Exception as e:
+        # TODO: implement typechecking and unhardcode this error
+        if str(e) == "list index out of range":
+          print("TODO: implement typechecking")
+          print("ERROR: %s\n" % e)
+          exit(1)
+        else:
+          print(str(e))
+          exit(1)
   # THE COMPILER MODE OF THIS LEXER HAS NO SUPPORT FOR COMMENTS YET
   def lex(self, data):
     tok = ""
     data = list(data)
+    isexpr = 0
     string = ""
     state = 0
+    expr = ""
     eof = 0
     for char in data:
       eof += 1
@@ -2609,16 +2663,44 @@ class CompileCode:
           tok = ""
         else:
           tok = " "
-      elif tok == "\n":
+      elif tok == "\n" or tok == "<EOF>":
+        if expr != "" and isexpr == 1 and state != 1:
+          self.make_Expr(expr)
+          expr = ""
+          isexpr = 0
+        elif expr != "" and isexpr == 0 and state != 1:
+          self.make_Number(expr)
+          expr = ""
         tok = ""
+      elif tok in DIGITS: # TODO: only make the expr when it is not in a string
+        if state == 0:
+          expr += tok
+          tok = ""
       elif tok == "printh":
         self.printh_intrinsic()
         tok = ""
-      elif tok == "(":
-        # TODO: implement left parenthesis
+      elif tok == "+" or tok == "-" or tok == "*" or tok == "/": # TODO: implement priority system using brackets
+        if state != 1:
+          expr += tok 
+          isexpr = 1
+          tok = ""
+        else:
+          string += tok
+          isexpr = 0
+          tok = ""
+      elif tok == "(": # TODO: implement left perenthesis for precedence
+        # if isexpr == 1:
+        #   expr += tok
+        #   tok = ""
+        #   isexpr = 0
+        # else: 
         tok = ""
-      elif tok == ")":
-        # TODO: implement right parenthesis
+      elif tok == ")": # TODO: implement right perenthesis for precedence
+        # if isexpr == 1:
+        #   expr += tok
+        #   tok = ""
+        #   isexpr = 0
+        # else: 
         tok = ""
       elif tok == "\"":
         if state == 0:
@@ -2630,21 +2712,33 @@ class CompileCode:
           tok = ""
       else:
         if eof == len(data):
+          # for now throw error, but later we can implement a make identifier function 
           print("ERROR: unknown word: %s" % tok)
           exit(1)
-          # for now throw error, but later we can implement a make identifier function 
       if state == 1:
         string += tok
         tok = ""
-    return tokens 
     #print(tokens)
+    return tokens 
   
+  def make_Expr(self, expr):
+    tokens.append("EXPR:" + expr)
   
+  def make_Number(self, num):
+    tokens.append("NUM:" + num)
+
   def makeString_intrinsic(self, string):
     tokens.append("STRING:" + string + "\"")
 
   def printh_intrinsic(self):
     tokens.append("PRINTH")
+
+  def evalExpr(self, expr):
+    # I know what I am doing wrong here
+    # the eval function is not safe to use
+    # but before you can input malicious code, the lexer will give you a error
+    # I will make my own evalExpr function later 
+    return str(eval(expr))
 
   def endswith1(self, hustle_ext, basepath):
     if basepath.endswith(hustle_ext):
