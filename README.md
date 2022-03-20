@@ -33,4 +33,5 @@ $ ./hustle.py com check_asm/foo.hsle (compile mode is still not finished)
 
 # Future Plans
 - [ ] Remove interpreter mode (IN PROGRESS)
+- [ ] re-write the compiler's lexer and parser
 - [ ] Create Documentaion (after completing the compilation mode) 

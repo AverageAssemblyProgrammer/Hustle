@@ -2553,6 +2553,10 @@ def generate_output(basepath, hustle_ext):
 tokens = []
 num_stack = []
 
+com_symbols = {
+
+}
+
 # COMPILATION MODE IS STILL IN PROGRESS AND NOT COMPLETE (USE IT AT YOUR OWN RISK)
 class CompileCode:
   def read_program(self, basename):
@@ -2578,7 +2582,7 @@ class CompileCode:
       self.parse(toks, o)
 
     generate_output(basepath, hustle_ext)
-
+  # TODO: Re-write the parser and the lexer for compilation mode make it more robust cause this one is shit
   def parse(self, toks, asm):
     i = 0
     #TODO: implement more intrinsics and builtInFunctions (if-else logic)
@@ -2633,6 +2637,11 @@ class CompileCode:
             asm.write( "    section     .data\n")
             asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
           i += 2
+        elif toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:6] == "VAR EQUALS STRING":
+          # TODO: implement assigning of variables and write the assembly code for it
+          # TODO: implement storing of variables and write the assembly code for it
+          i += 3
+          exit("not implemented")
         else:
           # it should never reach this part as the lexer should have already filtered out all the invalid tokens
           print("ERROR: Unknown intrinsic or BuiltInFunction")
@@ -2655,6 +2664,8 @@ class CompileCode:
     state = 0
     expr = ""
     eof = 0
+    varname = ""
+    varstarted = 0
     for char in data:
       eof += 1
       tok += char
@@ -2671,11 +2682,29 @@ class CompileCode:
         elif expr != "" and isexpr == 0 and state != 1:
           self.make_Number(expr)
           expr = ""
+        elif varname != "":
+          self.make_Var(varname)
+          varname = ""
+          varstarted = 0
         tok = ""
       elif tok in DIGITS: # TODO: only make the expr when it is not in a string
         if state == 0:
           expr += tok
           tok = ""
+      elif tok == "=" and state == 0:
+        if varname != "":
+          self.make_Var(varname)
+          varname = ""
+          varstarted = 0
+        self.make_Equals()
+        tok = ""
+      elif tok == "var " and state == 0:
+        varstarted = 1
+        varname += tok
+        tok = ""
+      elif varstarted == 1:
+        varname += tok
+        tok = ""
       elif tok == "printh":
         self.printh_intrinsic()
         tok = ""
@@ -2721,6 +2750,12 @@ class CompileCode:
     #print(tokens)
     return tokens 
   
+  def make_Equals(self):
+    tokens.append("EQUALS")
+
+  def make_Var(self, varname):
+    tokens.append(("VAR:" + varname))
+
   def make_Expr(self, expr):
     tokens.append("EXPR:" + expr)
   
@@ -2738,6 +2773,7 @@ class CompileCode:
     # the eval function is not safe to use
     # but before you can input malicious code, the lexer will give you a error
     # I will make my own evalExpr function later 
+    # this is cheating a little as this is a python's built in function and not a assembly code of doing this but for now this works fine
     return str(eval(expr))
 
   def endswith1(self, hustle_ext, basepath):
