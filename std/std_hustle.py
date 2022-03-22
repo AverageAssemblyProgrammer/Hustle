@@ -7,6 +7,7 @@
 # AFTER I AM DONE WITH THAT I WILL BE MAKING THE COMPILED VERSION OF THE LANGUAGE WITHOUT ANY OTHER GUY'S HELP
 
 # codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
+from operator import is_
 from arrow_strings.strings_with_arrows import *
 from keywords.keywords import *
 from ops.ops import *
@@ -2549,6 +2550,13 @@ def generate_output(basepath, hustle_ext):
   cmd_echoed(["nasm", "-felf64", basepath + ".asm"])
   cmd_echoed(["ld", "-o", basepath, basepath + ".o"])
 
+def run_compiled_code(basepath, hustle_ext):
+  if basepath.endswith(hustle_ext):
+      basepath = basepath[:-len(hustle_ext)]
+  # not native yet
+  print("[INFO] Running %s" % (basepath)) 
+  cmd_echoed(["./"+basepath])
+
 # globals lists
 tokens = []
 num_stack = []
@@ -2556,6 +2564,9 @@ num_stack = []
 com_symbols = {
 
 }
+
+varnames = []
+extern_varnames = []
 
 # COMPILATION MODE IS STILL IN PROGRESS AND NOT COMPLETE (USE IT AT YOUR OWN RISK)
 class CompileCode:
@@ -2589,15 +2600,16 @@ class CompileCode:
     while(i < len(toks)):
       # TODO: add number evaluation
       try:
-        if toks[i] + " " + toks[i+1][0:6] == "PRINTH STRING" or toks[i] + " " + toks[i+1][0:3] == "PRINTH NUM" or toks[i] + " " + toks[i+1][0:4] == "PRINTH EXPR":
+        if toks[i] + " " + toks[i+1][0:6] == "PRINTH STRING" or toks[i] + " " + toks[i+1][0:3] == "PRINTH NUM" or toks[i] + " " + toks[i+1][0:4] == "PRINTH EXPR" or toks[i] + " " + toks[i+1][0:3] == "PRINTH VAR":
           # for now the compiler only supports 1 printh intrinsic 
           if toks[i+1][0:6] == "STRING":
             message = toks[i+1][7:]  
             message = message
+            asm.write( "section .text\n")
             asm.write( "    mov    rax, 1                     ; sys call for write\n")
             asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
             asm.write( "    mov    rsi, message               ; ardress of string to output\n")
-            asm.write(f"    mov    rdx, {len(message)}                    ; numbers of bytes for the memory of the string\n")
+            asm.write(f"    mov    rdx, {len(message)-2}                    ; numbers of bytes for the memory of the string\n")
             asm.write( "    syscall                           ; invoke the os to do the write\n")
             asm.write( "    mov    rax, 60                    ; system call for exit\n") 
             asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
@@ -2609,10 +2621,11 @@ class CompileCode:
           elif toks[i+1][0:3] == "NUM":
             message = toks[i+1][4:]  
             message = "\""+message+"\""
+            asm.write( "section .text\n")
             asm.write( "    mov    rax, 1                     ; sys call for write\n")
             asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
             asm.write( "    mov    rsi, message               ; ardress of string to output\n")
-            asm.write(f"    mov    rdx, {len(message)}                    ; numbers of bytes for the memory of the string\n")
+            asm.write(f"    mov    rdx, {len(message)-2}                    ; numbers of bytes for the memory of the string\n")
             asm.write( "    syscall                           ; invoke the os to do the write\n")
             asm.write( "    mov    rax, 60                    ; system call for exit\n") 
             asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
@@ -2625,10 +2638,11 @@ class CompileCode:
             message = toks[i+1][5:]  
             message = self.evalExpr(message)
             message = ("\""+message+"\"")
-            asm.write( "    mov    rax, 1                     ; sys call for write\n")
+            asm.write( "section .text\n")
+            asm.write( "    mov    rax, 1                     ; syscall for write\n")
             asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
             asm.write( "    mov    rsi, message               ; ardress of string to output\n")
-            asm.write(f"    mov    rdx, {len(message)}                    ; numbers of bytes for the memory of the string\n")
+            asm.write(f"    mov    rdx, {len(message)-2}                    ; numbers of bytes for the memory of the string\n")
             asm.write( "    syscall                           ; invoke the os to do the write\n")
             asm.write( "    mov    rax, 60                    ; system call for exit\n") 
             asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
@@ -2636,12 +2650,62 @@ class CompileCode:
             asm.write( "    syscall\n")
             asm.write( "    section     .data\n")
             asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
+          elif toks[i+1][0:3] == "VAR":
+            current_var_name = toks[i+1]
+            current_var_name = current_var_name[4:]
+            current_var_value = com_symbols[current_var_name]
+            # TODO: check if the variable is not define if yes then throw an error
+            # TODO: check if the variable is reference before assignement if yes then throw an error
+            # TODO: checck if the printh intrinsic is calling a undifined variable if yes throw an error
+            if current_var_name in varnames:
+              asm.write("section .text\n")
+              asm.write( "    mov rax, 1                        ; syscall for write\n")
+              asm.write( "    mov rdi, 1                        ; file handle 1 is stdout\n")
+              asm.write(f"    mov rsi, {str(current_var_name)}                       ; ardress of the string to output\n")
+              asm.write(f"    mov rdx, {len(str(current_var_value))-2}                       ; numbers of bytes for the memory of the variable value\n")
+              asm.write( "    syscall                       ; invoke the operating system to do a write\n")
+              asm.write( "    mov rax, 60                       ; system call for exit\n")
+              asm.write( "    xor rdi, rdi                        ; exit code 0\n")
+              asm.write( "    syscall                       ; system call for exit\n") 
+            else:
+              print("ERROR: undefined reference to variable " + current_var_name)
+              exit(1)
           i += 2
-        elif toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:6] == "VAR EQUALS STRING":
-          # TODO: implement assigning of variables and write the assembly code for it
-          # TODO: implement storing of variables and write the assembly code for it
+        elif toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:6] == "VAR EQUALS STRING" or toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:3] == "VAR EQUALS NUM" or toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:4] == "VAR EQUALS EXPR":
+          varname = toks[i][4:]
+          if toks[i+2][0:6] == "STRING":
+            varvalue = toks[i+2][7:]
+          elif toks[i+2][0:3] == "NUM":
+            varvalue = toks[i+2][4:]
+          elif toks[i+2][0:4] == "EXPR":
+            varvalue = toks[i+2][5:]
+
+          if toks[i+2][0:6] == "STRING":
+            self.assign_var(toks[i], toks[i+2])
+            asm.write( "    section .data\n")
+            asm.write(f"{varname}: db    {varvalue}, 10         ; hardcoded newlines as newlines not supported yet\n")
+          elif toks[i+2][0:3] == "NUM":
+            varvalue = ("\""+varvalue+"\"")
+            self.assign_var(toks[i], toks[i+2])
+            asm.write( "    section .data\n")
+            asm.write(f"{varname}: db    {varvalue}, 10         ; hardcoded newlines as newlines not supported yet\n")
+          elif toks[i+2][0:4] == "EXPR":
+            evaledValue = self.evalExpr(varvalue)
+            self.assign_var(toks[i], "NUM:"+evaledValue)
+            evaledValue = ("\""+evaledValue+"\"")
+            asm.write( "    section .data\n")
+            asm.write(f"{varname}: db    {evaledValue}, 10         ; hardcoded newlines as newlines not supported yet\n")
+          else:
+            print("ERROR: invalid assignment of variable")
+            exit(1)
+
+          if varname in varnames:
+            print("ERROR: Redefination of variable")
+            print("ERROR: variable cannot contain digits")
+            print("ERROR: variable name: %s" % str(varname))
+            exit(1)
+          varnames.append(varname)
           i += 3
-          exit("not implemented")
         else:
           # it should never reach this part as the lexer should have already filtered out all the invalid tokens
           print("ERROR: Unknown intrinsic or BuiltInFunction")
@@ -2655,6 +2719,7 @@ class CompileCode:
         else:
           print(str(e))
           exit(1)
+
   # THE COMPILER MODE OF THIS LEXER HAS NO SUPPORT FOR COMMENTS YET
   def lex(self, data):
     tok = ""
@@ -2698,11 +2763,20 @@ class CompileCode:
           varstarted = 0
         self.make_Equals()
         tok = ""
-      elif tok == "var " and state == 0:
+      elif tok == "var" and state == 0:
         varstarted = 1
         varname += tok
+        varname = varname[6:]
         tok = ""
+      elif tok in extern_varnames and state == 0:
+          tokens.append("VAR:"+tok)
+          tok = ""
       elif varstarted == 1:
+        if tok == "<" or tok == ">":
+          if varname != "":
+            self.make_Var(varname)
+            varname = ""
+            varstarted = 0
         varname += tok
         tok = ""
       elif tok == "printh":
@@ -2739,22 +2813,22 @@ class CompileCode:
           string = ""
           state = 0
           tok = ""
-      else:
-        if eof == len(data):
-          # for now throw error, but later we can implement a make identifier function 
-          print("ERROR: unknown word: %s" % tok)
-          exit(1)
       if state == 1:
         string += tok
         tok = ""
     #print(tokens)
+    #return ''
     return tokens 
   
   def make_Equals(self):
     tokens.append("EQUALS")
 
+  def assign_var(self, varname, varvalue):
+    com_symbols[varname[4:]] = varvalue
+
   def make_Var(self, varname):
     tokens.append(("VAR:" + varname))
+    extern_varnames.append(varname)
 
   def make_Expr(self, expr):
     tokens.append("EXPR:" + expr)

@@ -1,1 +1,2 @@
-printh("Hello, World")
+var free = "Hello, World"
+printh(free)

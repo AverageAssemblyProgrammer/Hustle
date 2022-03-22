@@ -2,8 +2,8 @@
 :b stdin 0
 
 :i returncode 0
-:b stdout 4
-6
+:b stdout 5
+69
 
 
 

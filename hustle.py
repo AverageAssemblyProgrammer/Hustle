@@ -17,21 +17,23 @@ def usage(white_help=True):
 		print(Fore.WHITE + "Subcommands are :-") 
 		print(Fore.WHITE + "    run    <filepath>    " + "         - interprete the program.")
 		print(Fore.WHITE + "    com    <filepath>    " + "         - compile the program.")
+		print(Fore.WHITE + "    com -r <filepath>    " + "         - run the compiled program.")
 		print(Fore.WHITE + "    help                 " + "         - print this help screen.")
 	else: 
 		print("Subcommands are :-")
 		print("    run    <filepath>    " + "         - run will interprete the program.")
 		print("    com    <filepath>    " + "         - compile the program.")
+		print("    com -r <filepath>	" + "         - run the compiled program.")
 		print("    help                 " + "         - help will print this help screen.")
 
 
 def check_subcommand(command):
-	if command == "run" or command == "Run" or command == "RUN":
+	if command.lower() == "run":
 		return "run"
-	elif command == "Help" or command == "help" or command == "HELP" or command == "-h":
+	elif command.lower() == "help":
 		ret = "help"
 		return ret
-	elif command == "com" or command == "compile" or command == "COM": 
+	elif command.lower() == "com" or command == "compile": 
 		return "com"
 	else:
 		print("Unkown Subcommand")
@@ -74,9 +76,21 @@ def run():
 			exit(1)
 	# COMPILE MODE IS STILL IN PROGRESS AND NOT COMPLETE
 	if struct == "com":
-		data = argv[2]
-		text = "com_run(\""+data+"\")"
-		stdlib.com_run('<stdin>', text, data) 
+		subsubcommand = argv[2]
+		ispath = False 
+		if subsubcommand is not None: 
+			if str(subsubcommand) == "-r":
+				data1 = argv[3]
+				text1 = "com_run(\""+data1+"\")"
+				stdlib.com_run('<stdin>', text1, data1)
+				stdlib.run_compiled_code(data1, '.hsle')
+			elif subsubcommand.endswith('.hsle'):
+				subsubcommand = subsubcommand[:-len('.hsle')]
+				ispath = True
+		if ispath:
+			data2 = argv[2]
+			text = "com_run(\""+data2+"\")"
+			stdlib.com_run('<stdin>', text, data2)
 	elif struct == "help":
 		usage(False)
 		exit(0)
