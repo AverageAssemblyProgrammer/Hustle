@@ -1,13 +1,3 @@
-# THIS WHOLE THING IS MOSTLY THE WORK THAT WAS DONE BY CODEPULSE 
-# HE MADE A TUTORIAL AND i JUST FOLLOROWED IT (BY FOLLOWED IT I MEAN CTRL+C AND CTRL+V)
-# I JUST WANTED TO TELL THAT THANK YOU TO CODEPULSE FOR KINDA GIVING ME A STARTER LANGUAGE TO WORK WITH
-# I AM JUST GONNA BUILD ON THAT JUST FOR THE INTERPRETER LANGUAGE
-# FOR THE COMPILED HUSTLE LANGUAGE I WILL USE MY OWN CODEBASE THAT MEANS TO CTRL+C AND CTRL+V
-# THIS PROJECT IS NOTHING BUT A SMALL PROJECT THAT I AM DOING TO UNDERSTAND LEXING AND PARING
-# AFTER I AM DONE WITH THAT I WILL BE MAKING THE COMPILED VERSION OF THE LANGUAGE WITHOUT ANY OTHER GUY'S HELP
-
-# codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
-from operator import is_
 from arrow_strings.strings_with_arrows import *
 from keywords.keywords import *
 from ops.ops import *
@@ -2570,6 +2560,10 @@ extern_varnames = []
 
 # COMPILATION MODE IS STILL IN PROGRESS AND NOT COMPLETE (USE IT AT YOUR OWN RISK)
 class CompileCode:
+  def __init__(self, idx):
+    # use this to keep track of the position in the file
+    self.idx = idx
+
   def read_program(self, basename):
     with open(basename, "r") as ip:
       program = ip.read()
@@ -2591,33 +2585,36 @@ class CompileCode:
 
       toks = self.lex(program)
       self.parse(toks, o)
-
+      
+      o.write( "section .text\n")
+      o.write( "    mov    rax, 60                  ; system call for exit\n") 
+      o.write( "    mov    rdi, 0                   ; exit code 0\n")
+      o.write( "    syscall\n")
+      
     generate_output(basepath, hustle_ext)
   # TODO: Re-write the parser and the lexer for compilation mode make it more robust cause this one is shit
   def parse(self, toks, asm):
     i = 0
     #TODO: implement more intrinsics and builtInFunctions (if-else logic)
     while(i < len(toks)):
-      # TODO: add number evaluation
+      # TODO: add number evaluation without eval() function 
       try:
         if toks[i] + " " + toks[i+1][0:6] == "PRINTH STRING" or toks[i] + " " + toks[i+1][0:3] == "PRINTH NUM" or toks[i] + " " + toks[i+1][0:4] == "PRINTH EXPR" or toks[i] + " " + toks[i+1][0:3] == "PRINTH VAR":
           # for now the compiler only supports 1 printh intrinsic 
           if toks[i+1][0:6] == "STRING":
             message = toks[i+1][7:]  
             message = message
+            # make a random id for the string
+            message_id = str(random.randint(0, 1000000))
+            message_id = "string" + message_id
             asm.write( "section .text\n")
             asm.write( "    mov    rax, 1                     ; sys call for write\n")
             asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
-            asm.write( "    mov    rsi, message               ; ardress of string to output\n")
+            asm.write(f"    mov    rsi, {message_id}               ; ardress of string to output\n")
             asm.write(f"    mov    rdx, {len(message)-2}                    ; numbers of bytes for the memory of the string\n")
             asm.write( "    syscall                           ; invoke the os to do the write\n")
-            asm.write( "    mov    rax, 60                    ; system call for exit\n") 
-            asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
-            # after implementation of almost all the intrinsics, this exit syscall will be at the end of the assembly instructions
-            asm.write( "    syscall\n")
             asm.write( "    section     .data\n")
-            asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
-
+            asm.write(f"{message_id}: db     {message}, 10         ; note the newline at the end\n")
           elif toks[i+1][0:3] == "NUM":
             message = toks[i+1][4:]  
             message = "\""+message+"\""
@@ -2627,10 +2624,6 @@ class CompileCode:
             asm.write( "    mov    rsi, message               ; ardress of string to output\n")
             asm.write(f"    mov    rdx, {len(message)-2}                    ; numbers of bytes for the memory of the string\n")
             asm.write( "    syscall                           ; invoke the os to do the write\n")
-            asm.write( "    mov    rax, 60                    ; system call for exit\n") 
-            asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
-            # after implementation of almost all the intrinsics, this exit syscall will be at the end of the assembly instructions
-            asm.write( "    syscall\n")
             asm.write( "    section     .data\n")
             asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
 
@@ -2644,29 +2637,32 @@ class CompileCode:
             asm.write( "    mov    rsi, message               ; ardress of string to output\n")
             asm.write(f"    mov    rdx, {len(message)-2}                    ; numbers of bytes for the memory of the string\n")
             asm.write( "    syscall                           ; invoke the os to do the write\n")
-            asm.write( "    mov    rax, 60                    ; system call for exit\n") 
-            asm.write( "    xor    rdi, rdi                   ; exit code 0\n")
-            # after implementation of almost all the intrinsics, this exit syscall will be at the end of the assembly instructions
-            asm.write( "    syscall\n")
             asm.write( "    section     .data\n")
             asm.write(f"message: db     {message}, 10         ; note the newline at the end\n")
           elif toks[i+1][0:3] == "VAR":
             current_var_name = toks[i+1]
             current_var_name = current_var_name[4:]
             current_var_value = com_symbols[current_var_name]
+            if current_var_value[0:6] == "STRING":
+              current_var_value = current_var_value[7:]
+            elif current_var_value[0:3] == "NUM":
+              current_var_value = current_var_value[4:]
+              current_var_value = "\""+current_var_value+"\""
+            elif current_var_value[0:4] == "EXPR":
+              current_var_value = self.evalExpr(current_var_value[5:])
+              current_var_value = ("\""+current_var_value+"\"")
+            else:
+              print("ERROR: invalid variable type")
             # TODO: check if the variable is not define if yes then throw an error
             # TODO: check if the variable is reference before assignement if yes then throw an error
-            # TODO: checck if the printh intrinsic is calling a undifined variable if yes throw an error
+            # TODO: check if the printh intrinsic is calling a undifined variable if yes throw an error
             if current_var_name in varnames:
               asm.write("section .text\n")
               asm.write( "    mov rax, 1                        ; syscall for write\n")
               asm.write( "    mov rdi, 1                        ; file handle 1 is stdout\n")
               asm.write(f"    mov rsi, {str(current_var_name)}                       ; ardress of the string to output\n")
-              asm.write(f"    mov rdx, {len(str(current_var_value))-2}                       ; numbers of bytes for the memory of the variable value\n")
-              asm.write( "    syscall                       ; invoke the operating system to do a write\n")
-              asm.write( "    mov rax, 60                       ; system call for exit\n")
-              asm.write( "    xor rdi, rdi                        ; exit code 0\n")
-              asm.write( "    syscall                       ; system call for exit\n") 
+              asm.write(f"    mov rdx, {len(current_var_value)-2}                      ; numbers of bytes for the memory of the variable value\n")
+              asm.write( "    syscall                          ; invoke the operating system to do a write\n")              
             else:
               print("ERROR: undefined reference to variable " + current_var_name)
               exit(1)
@@ -2696,19 +2692,20 @@ class CompileCode:
             asm.write( "    section .data\n")
             asm.write(f"{varname}: db    {evaledValue}, 10         ; hardcoded newlines as newlines not supported yet\n")
           else:
-            print("ERROR: invalid assignment of variable")
+            print("ERROR: invalid assignment of variable at line") # TODO: give token position too
             exit(1)
 
           if varname in varnames:
-            print("ERROR: Redefination of variable")
-            print("ERROR: variable cannot contain digits")
+            print("ERROR: Redefination of variable at line")
+            print("ERROR: variable cannot contain digits for now")
             print("ERROR: variable name: %s" % str(varname))
             exit(1)
+
           varnames.append(varname)
           i += 3
         else:
           # it should never reach this part as the lexer should have already filtered out all the invalid tokens
-          print("ERROR: Unknown intrinsic or BuiltInFunction")
+          print("ERROR: Unknown intrinsic or BuiltInFunction: %s" % toks[i])
           exit(1)
       except Exception as e:
         # TODO: implement typechecking and unhardcode this error
@@ -2739,6 +2736,11 @@ class CompileCode:
           tok = ""
         else:
           tok = " "
+      # TODO: implement a better line counter  
+      # TODO: make this line counter work 
+      # elif tok == "\n" or tok == "<EOF>":
+      #   self.idx += 1
+      #   tok = ""
       elif tok == "\n" or tok == "<EOF>":
         if expr != "" and isexpr == 1 and state != 1:
           self.make_Expr(expr)
@@ -2782,7 +2784,7 @@ class CompileCode:
       elif tok == "printh":
         self.printh_intrinsic()
         tok = ""
-      elif tok == "+" or tok == "-" or tok == "*" or tok == "/": # TODO: implement priority system using brackets
+      elif tok == "+" or tok == "-" or tok == "*" or tok == "/" or tok == "%": # TODO: implement priority system using brackets
         if state != 1:
           expr += tok 
           isexpr = 1
@@ -2870,7 +2872,7 @@ def com_run(fn, text, data):
   basedir = path.dirname(data)
   basepath = path.join(basedir, basename)
 
-  compiler = CompileCode()
+  compiler = CompileCode(0)
   error = compiler.generate_nasm_x84_assembly(basepath, ".hsle", basepath, tokens)
 
   if error:

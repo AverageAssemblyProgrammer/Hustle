@@ -1,2 +1,8 @@
-var free = "Hello, World"
-printh(free)
+printh(
+    "you can even do this in hustle compilation mode, " 
+)
+printh(
+    "now hustle supports multiple printh statements "
+)
+var my_number = 35+34 
+printh(my_number)
