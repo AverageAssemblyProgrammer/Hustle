@@ -2572,7 +2572,6 @@ class CompileCode:
     return program
 
   #TODO: check for all intrintics and builtInFuctions (if-else logic)
-  #TODO: add support for string litterals in compilation
   #TODO: make a new parser and lexer for compilation of code
   def generate_nasm_x84_assembly(self, basename, hustle_ext, basepath, tokens):
     basepath = self.endswith1(hustle_ext, basepath)
@@ -2585,7 +2584,7 @@ class CompileCode:
 
       toks = self.lex(program)
       self.parse(toks, o)
-      
+
       o.write( "section .text\n")
       o.write( "    mov    rax, 60                  ; system call for exit\n") 
       o.write( "    mov    rdi, 0                   ; exit code 0\n")
@@ -2600,7 +2599,6 @@ class CompileCode:
       # TODO: add number evaluation without eval() function 
       try:
         if toks[i] + " " + toks[i+1][0:6] == "PRINTH STRING" or toks[i] + " " + toks[i+1][0:3] == "PRINTH NUM" or toks[i] + " " + toks[i+1][0:4] == "PRINTH EXPR" or toks[i] + " " + toks[i+1][0:3] == "PRINTH VAR":
-          # for now the compiler only supports 1 printh intrinsic 
           if toks[i+1][0:6] == "STRING":
             message = toks[i+1][7:]  
             message = message
@@ -2704,7 +2702,6 @@ class CompileCode:
           varnames.append(varname)
           i += 3
         else:
-          # it should never reach this part as the lexer should have already filtered out all the invalid tokens
           print("ERROR: Unknown intrinsic or BuiltInFunction: %s" % toks[i])
           exit(1)
       except Exception as e:
