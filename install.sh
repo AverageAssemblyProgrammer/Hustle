@@ -9,13 +9,9 @@ if [ "$EUID" -ne 0 ]
 then
         printf "Please run this program as root by typing \"sudo ./install.sh\" \n"
         exit 1
-else
-       printf "[INFO] Updating the package sources list"
-       printf "[CMD] sudo apt-get update -y"
-       sudo apt-get update -y
-    
-       printf "[INFO] Installing Nasm"
-       printf "[CMD] sudo apt-get install -y nasm"
+else    
+       printf "[INFO] Installing Nasm \n"
+       printf "[CMD] sudo apt-get install -y nasm \n"
        sudo apt-get install -y nasm 
 
        printf "[CMD] sudo rm -rf /usr/bin/hustle \n"
@@ -24,7 +20,7 @@ else
        printf "[CMD] sudo mkdir /usr/bin/hustle \n"
        sudo mkdir /usr/bin/hustle
 
-       printf "[INFO] Copying directories to /usr/bin/hustle"
+       printf "[INFO] Copying directories to /usr/bin/hustle\n"
        printf "[CMD] sudo cp hustle.py /usr/bin/hustle \n"
        sudo cp hustle.py /usr/bin/hustle
        

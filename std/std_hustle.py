@@ -2560,9 +2560,10 @@ extern_varnames = []
 
 # COMPILATION MODE IS STILL IN PROGRESS AND NOT COMPLETE (USE IT AT YOUR OWN RISK)
 class CompileCode:
-  def __init__(self, idx):
+  def __init__(self, parse_idx=0, lex_idx=0):
     # use this to keep track of the position in the file
-    self.idx = idx
+    self.parse_idx = parse_idx
+    self.lex_idx   = lex_idx
 
   def read_program(self, basename):
     with open(basename, "r") as ip:
@@ -2583,17 +2584,24 @@ class CompileCode:
       o.write("_start:\n")
 
       toks = self.lex(program)
-      self.parse(toks, o)
+      self.parse(toks, o, program)
 
       o.write( "section .text\n")
       o.write( "    mov    rax, 60                  ; system call for exit\n") 
       o.write( "    mov    rdi, 0                   ; exit code 0\n")
       o.write( "    syscall\n")
-      
+
     generate_output(basepath, hustle_ext)
   # TODO: Re-write the parser and the lexer for compilation mode make it more robust cause this one is shit
-  def parse(self, toks, asm):
+  def parse(self, toks, asm, data):
     i = 0
+    data = list(data)
+    for char in data:
+      if char == "\n":
+        self.parse_idx += 1
+    # FIXME: this is a hack to get the <EOF> also counted in the line counter for the parser
+    self.parse_idx += 1 
+    
     #TODO: implement more intrinsics and builtInFunctions (if-else logic)
     while(i < len(toks)):
       # TODO: add number evaluation without eval() function 
@@ -2602,7 +2610,7 @@ class CompileCode:
           if toks[i+1][0:6] == "STRING":
             message = toks[i+1][7:]  
             message = message
-            # make a random id for the string
+            # FIXME: this is a very buggy code, as there is a probabilty of getting the same random number twice
             message_id = str(random.randint(0, 1000000))
             message_id = "string" + message_id
             asm.write( "section .text\n")
@@ -2690,12 +2698,12 @@ class CompileCode:
             asm.write( "    section .data\n")
             asm.write(f"{varname}: db    {evaledValue}, 10         ; hardcoded newlines as newlines not supported yet\n")
           else:
-            print("ERROR: invalid assignment of variable at line") # TODO: give token position too
+            print("ERROR: invalid assignment of variable at line %s" % str(self.parse_idx)) 
             exit(1)
 
           if varname in varnames:
-            print("ERROR: Redefination of variable at line")
-            print("ERROR: variable cannot contain digits for now")
+            print("ERROR: Redefination of variable at line %s" % str(self.parse_idx))
+            print("ERROR: variable name cannot contain digits for now")
             print("ERROR: variable name: %s" % str(varname))
             exit(1)
 
@@ -2708,6 +2716,7 @@ class CompileCode:
         # TODO: implement typechecking and unhardcode this error
         if str(e) == "list index out of range":
           print("TODO: implement typechecking")
+          print("error at line: %s" % str(self.parse_idx))
           print("ERROR: %s\n" % e)
           exit(1)
         else:
@@ -2733,12 +2742,8 @@ class CompileCode:
           tok = ""
         else:
           tok = " "
-      # TODO: implement a better line counter  
-      # TODO: make this line counter work 
-      # elif tok == "\n" or tok == "<EOF>":
-      #   self.idx += 1
-      #   tok = ""
       elif tok == "\n" or tok == "<EOF>":
+        self.lex_idx += 1
         if expr != "" and isexpr == 1 and state != 1:
           self.make_Expr(expr)
           expr = ""
@@ -2751,7 +2756,7 @@ class CompileCode:
           varname = ""
           varstarted = 0
         tok = ""
-      elif tok in DIGITS: # TODO: only make the expr when it is not in a string
+      elif tok in DIGITS:
         if state == 0:
           expr += tok
           tok = ""
@@ -2869,7 +2874,7 @@ def com_run(fn, text, data):
   basedir = path.dirname(data)
   basepath = path.join(basedir, basename)
 
-  compiler = CompileCode(0)
+  compiler = CompileCode(0, 0)
   error = compiler.generate_nasm_x84_assembly(basepath, ".hsle", basepath, tokens)
 
   if error:
