@@ -1,3 +1,4 @@
+from functools import cached_property
 from arrow_strings.strings_with_arrows import *
 from keywords.keywords import *
 from ops.ops import *
@@ -2557,6 +2558,7 @@ com_symbols = {
 
 varnames = []
 extern_varnames = []
+cached_string_id = []
 
 # COMPILATION MODE IS STILL IN PROGRESS AND NOT COMPLETE (USE IT AT YOUR OWN RISK)
 class CompileCode:
@@ -2610,17 +2612,25 @@ class CompileCode:
           if toks[i+1][0:6] == "STRING":
             message = toks[i+1][7:]  
             message = message
+            # TODO: implement better escape sequence handling
+            # TODO: first check for \n and \t in the lexer and do not allow any other escape sequence in the string for now
+            message = message[1:-1]
+            # for now just use backticks and let nasm handle escape sequences
+            message = "`" + message + "`"
             # FIXME: this is a very buggy code, as there is a probabilty of getting the same random number twice
             message_id = str(random.randint(0, 1000000))
+            if message_id in cached_string_id: 
+              message_id = str(random.randint(1000001, 100000000))
+            cached_string_id.append(message_id)
             message_id = "string" + message_id
             asm.write( "section .text\n")
             asm.write( "    mov    rax, 1                     ; sys call for write\n")
             asm.write( "    mov    rdi, 1                     ; file handle 1 is stdout\n")
             asm.write(f"    mov    rsi, {message_id}               ; ardress of string to output\n")
-            asm.write(f"    mov    rdx, {len(message)-2}                    ; numbers of bytes for the memory of the string\n")
+            asm.write(f"    mov    rdx, {len(message)-3}                    ; numbers of bytes for the memory of the string\n")
             asm.write( "    syscall                           ; invoke the os to do the write\n")
             asm.write( "    section     .data\n")
-            asm.write(f"{message_id}: db     {message}, 10         ; note the newline at the end\n")
+            asm.write(f"{message_id}: db     {message}\n")
           elif toks[i+1][0:3] == "NUM":
             message = toks[i+1][4:]  
             message = "\""+message+"\""
@@ -2668,15 +2678,17 @@ class CompileCode:
               asm.write( "    mov rdi, 1                        ; file handle 1 is stdout\n")
               asm.write(f"    mov rsi, {str(current_var_name)}                       ; ardress of the string to output\n")
               asm.write(f"    mov rdx, {len(current_var_value)-2}                      ; numbers of bytes for the memory of the variable value\n")
-              asm.write( "    syscall                          ; invoke the operating system to do a write\n")              
+              asm.write( "    syscall                           ; invoke the operating system to do a write\n")              
             else:
               print("ERROR: undefined reference to variable " + current_var_name)
               exit(1)
-          i += 2
+          i += 2 
         elif toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:6] == "VAR EQUALS STRING" or toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:3] == "VAR EQUALS NUM" or toks[i][0:3] + " " + toks[i+1] + " " + toks[i+2][0:4] == "VAR EQUALS EXPR":
           varname = toks[i][4:]
           if toks[i+2][0:6] == "STRING":
             varvalue = toks[i+2][7:]
+            varvalue = varvalue[1:-1]
+            varvalue = "`" + varvalue + "`"
           elif toks[i+2][0:3] == "NUM":
             varvalue = toks[i+2][4:]
           elif toks[i+2][0:4] == "EXPR":
@@ -2685,7 +2697,7 @@ class CompileCode:
           if toks[i+2][0:6] == "STRING":
             self.assign_var(toks[i], toks[i+2])
             asm.write( "    section .data\n")
-            asm.write(f"{varname}: db    {varvalue}, 10         ; hardcoded newlines as newlines not supported yet\n")
+            asm.write(f"{varname}: db    {varvalue}         ; hardcoded newlines as newlines not supported yet\n")
           elif toks[i+2][0:3] == "NUM":
             varvalue = ("\""+varvalue+"\"")
             self.assign_var(toks[i], toks[i+2])

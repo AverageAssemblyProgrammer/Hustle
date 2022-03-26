@@ -33,7 +33,7 @@ $ ./hustle.py com check_asm/foo.hsle (compile mode is still not finished)
 ```
 
 # MileStones
-- [ ] Turing-Complete
+- [ ] Turing-Complete (our language is soo new that it is not even turing complete yet)
 - [ ] Compiled into intermidiate representation (IN PROGRESS)
 - [ ] Memory Allocation
 - [ ] Stactic Type Checking
