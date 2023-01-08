@@ -9,6 +9,8 @@ This project was writen with its base being the Youtube tutorial [Make YOUR OWN 
 Thanks for his help for the awesome tutorial.
 codepulse's tutorial:- https://www.youtube.com/watch?v=Eythq9848Fg&list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD
 
+for future me: to fix the structure of the compilation (if statement) deleat the compilation to nasm section of the new codebase and re-write it. (remember to check the lexer for errors
+
 # Installation
 ```console
 $ sudo ./install.sh 
